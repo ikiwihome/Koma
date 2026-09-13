@@ -1,0 +1,78 @@
+.container {
+  padding: 12px;
+  background: var(--token-text-primary);
+  border: 1px solid var(--token-border-subtle);
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.toolInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolIcon {
+  color: var(--token-status-info);
+}
+
+.toolName {
+  font-size: 14px;
+}
+
+.namespace {
+  font-size: 10px;
+  padding: 0 4px;
+  line-height: 1.4;
+}
+
+.statusInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.duration {
+  font-size: 12px;
+}
+
+.args {
+  margin: 0;
+  padding: 8px;
+  background: var(--token-border-subtle);
+  border-radius: 4px;
+  font-size: 12px;
+  overflow-x: auto;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.result {
+  margin: 8px 0 0;
+  padding: 8px;
+  background: color-mix(in srgb, var(--token-status-success) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--token-status-success) 45%, transparent);
+  border-radius: 4px;
+  font-size: 12px;
+  overflow-x: auto;
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.error {
+  margin: 8px 0 0;
+  padding: 8px;
+  background: color-mix(in srgb, var(--token-status-error) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--token-status-error) 35%, transparent);
+  border-radius: 4px;
+  font-size: 12px;
+}

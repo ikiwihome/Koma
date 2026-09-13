@@ -1,0 +1,165 @@
+.layout {
+  display: flex;
+  height: 100%;
+  background-color: var(--token-bg-surface);
+}
+
+.sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--token-bg-elevated);
+  background-color: var(--token-bg-app);
+  overflow: hidden;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;
+}
+
+.toolbar {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--token-bg-elevated);
+  background-color: var(--token-bg-app);
+}
+
+.content {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Hero 欢迎区域 */
+.heroArea {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 120px;
+}
+
+.heroContent {
+  text-align: center;
+  max-width: 600px;
+  padding: 0 24px;
+}
+
+.heroIcon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--token-accent-base) 0%, var(--token-accent-hover) 100%);
+  border-radius: 20px;
+  font-size: 36px;
+  /* accent 渐变实色 → onAccent 对比文字（亮主题下 text-primary 是 slate-900 接近黑色，
+     蓝渐变底 + 黑字看不见） */
+  color: var(--token-on-accent);
+}
+
+.heroTitle {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--token-text-primary);
+  margin: 0 0 12px;
+}
+
+.heroSubtitle {
+  font-size: 16px;
+  color: var(--token-text-secondary);
+  margin: 0;
+}
+
+/* 消息区域 */
+.messageArea {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding-bottom: 20px;
+}
+
+/* 输入框容器 */
+.composerContainer {
+  width: 100%;
+  max-width: 800px;
+  padding: 0 24px;
+  box-sizing: border-box;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+/* 居中模式（Hero） */
+.composerCenter {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  /* 使用较大的偏移量确保不遮挡欢迎语，同时保持在视觉中心附近 */
+  transform: translate(-50%, 80px);
+}
+
+@media (max-height: 700px) {
+  .heroArea {
+    padding-bottom: 80px;
+  }
+  .composerCenter {
+    transform: translate(-50%, 60px);
+  }
+}
+
+/* 底部模式（Chat） */
+.composerBottom {
+  position: relative;
+  margin: 0 auto;
+  transform: none;
+  padding-bottom: 24px;
+  background: linear-gradient(to top, var(--token-bg-surface) 60%, transparent);
+  padding-top: 40px;
+}
+
+/* 过渡动画 */
+.composerTransitioning {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 移动端响应式 */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.visible {
+    transform: translateX(0);
+  }
+
+  .composerContainer {
+    max-width: 100%;
+    padding: 0 16px;
+  }
+
+  .composerBottom {
+    padding-bottom: 16px;
+  }
+
+  .heroTitle {
+    font-size: 24px;
+  }
+
+  .heroIcon {
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+  }
+}

@@ -1,0 +1,28 @@
+整体提示词 
+前置正向
+格遵循当前输入提示词与参考图，不自由发挥，不新增文案外人物、场景、物件、动作、台词。保持人物身份一致、画风一致、构图稳定、比例真实、细节清晰、8k高质量、sharp focus, high detail, clean composition, consistent style, accurate anatomy
+后置正向
+优先保证人物稳定、站位稳定、朝向稳定、服装稳定、发型稳定、场景稳定、道具稳定。若为单图生视频任务，必须保持首帧一致性、镜头稳定、动作自然、避免人物乱跑、避免无依据运镜、避免无依据动作强化。无字幕，无中文文字，无水印，无logo。
+后置负向
+low quality, blurry, out of focus, worst quality, normal quality, lowres, jpeg artifacts, text, subtitle, watermark, logo, signature, username, extra people, extra character, duplicate person, wrong character, face drift, hairstyle drift, costume drift, accessory drift, prop drift, scene drift, bad anatomy, deformed body, malformed limbs, extra arms, extra legs, extra hands, extra fingers, missing fingers, fused fingers, broken hands, broken face, distorted eyes, cross-eyed, wrong proportions, bad perspective, cropped body, floating body, disconnected limbs, mutation, messy composition
+
+视频规约
+
+视频前0.15秒为废帧，严格遵循当前输入提示词与参考图，不自由发挥，不新增文案外人物、场景、物件、动作、台词。优先保证人物身份一致、站位稳定、朝向稳定、服装稳定、发型稳定、场景稳定、道具稳定、画风一致、比例真实、细节清晰。若为单图生视频任务，必须保持首帧一致性、镜头稳定、动作自然，禁止人物乱跑、禁止无依据运镜、禁止无依据大幅动作、禁止无依据景别变化。high detail, sharp focus, clean composition, consistent style, accurate anatomy. 无字幕，无中文文字，无水印，无logo。
+
+角色三视图生成
+
+前置
+{风格}，单角色角色设定图，白色纯背景，左侧为面部特写，右侧为全身三视图（正面、侧面、背面），人物完整入画，无遮挡，站姿自然
+后置
+character design sheet, turnaround sheet, single character only, clean white background, consistent face, consistent hairstyle, consistent costume, detailed accessories, full body visible, clear silhouette, clean composition, high detail, sharp focus
+负向
+多人，双人，额外人物，背景场景，复杂背景，裁切，出框，遮挡，动态跑动，夸张动作，夸张透视，脸部不一致，发型不一致，服装不一致，配饰不一致，手部崩坏，脚部崩坏，多手指，少手指，额外肢体，肢体畸形，比例失真，模糊，低清晰度，文字，字幕，logo，水印
+
+场景提示词
+前置
+单场景设定图，完整展示场景空间结构、前景、中景、后景关系，固定陈设清晰，主视觉区域明确，不出现人物，不出现动物，不出现动态主体，适合作为后续分镜、镜头承接、场景一致性锁定参考图
+后置正向
+environment design sheet, clean scene layout, clear foreground midground background, consistent perspective, detailed environment, no characters, no animals, clean composition, high detail, sharp focus
+负向
+人物，角色，人影，动物，群像，复杂动态主体，过度透视，夸张镜头，场景结构混乱，背景模糊，细节重复，错误建筑结构，漂浮物体，比例失真，低清晰度，模糊，文字，字幕，logo，水印

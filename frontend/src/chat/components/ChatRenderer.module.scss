@@ -1,0 +1,592 @@
+.chatContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  overflow-y: auto;
+  height: 100%;
+}
+
+@keyframes messageBubbleIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.messageBubble {
+  display: flex;
+  gap: 12px;
+  max-width: 85%;
+  animation: messageBubbleIn 0.25s ease-out;
+}
+
+.userBubble {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.assistantBubble {
+  align-self: flex-start;
+}
+
+.avatarWrapper {
+  flex-shrink: 0;
+}
+
+.userAvatar {
+  background-color: var(--token-accent-base);
+}
+
+.assistantAvatar {
+  background-color: var(--token-border-base);
+}
+
+.messageContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.messageBody {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background-color: var(--token-bg-elevated);
+  border: 1px solid var(--token-border-base);
+  color: var(--token-text-primary);
+  font-size: 13px;
+  line-height: 1.55;
+  word-break: break-word;
+  /* 显式允许文本选择（兼容 Electron / 父元素任何 user-select 继承）。
+     之前用户气泡内 <span>{content}</span> 用户报告无法选中——保险起见全显式启用 */
+  -webkit-user-select: text;
+  user-select: text;
+  cursor: text;
+}
+
+.userBubble .messageBody {
+  background-color: var(--token-accent-base);
+  border-color: var(--token-accent-hover);
+  /* accent 实色背景上的对比文字色（亮主题下 text-primary 是接近黑色，
+     在深海军蓝底上不可读）。包括 user message 内的文本（普通 span）+ 任何 markdown 子节点。*/
+  color: var(--token-on-accent);
+}
+
+.userBubble .messageBody :global(.ds-markdown) {
+  color: var(--token-on-accent);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.userBubble .messageBody :global(.ds-markdown p),
+.userBubble .messageBody :global(.ds-markdown .ds-markdown-paragraph),
+.userBubble .messageBody :global(.ds-markdown li) {
+  line-height: 1.55;
+}
+
+.userBubble .messageBody :global(.ds-markdown pre) {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.userBubble .messageBody :global(.ds-markdown code) {
+  font-size: 12px;
+}
+
+.assistantBubble .messageBody :global(.ds-markdown),
+.streamingContent :global(.ds-markdown) {
+  --ds-rgb-primary: 16 185 129;
+  --ds-rgb-label-1: 250 250 250;
+  --ds-rgb-label-2: 212 212 216;
+  --ds-rgb-label-3: 161 161 170;
+  --ds-rgb-link: 52 211 153;
+  --dsr-bg: transparent;
+  --dsr-border-1: var(--token-text-muted);
+  --dsr-border-2: var(--token-border-base);
+  --ds-button-hover-color: color-mix(in srgb, var(--token-text-primary) 8%, transparent);
+  --ds-md-inline-code-color: color-mix(in srgb, var(--token-text-primary) 10%, transparent);
+  --ds-thinking-border-color: var(--token-border-base);
+  color: var(--token-text-primary);
+  background: transparent;
+  background-color: transparent;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.assistantBubble .messageBody :global(.ds-markdown *),
+.streamingContent :global(.ds-markdown *) {
+  box-sizing: border-box;
+}
+
+.assistantBubble .messageBody :global(.ds-markdown p),
+.assistantBubble .messageBody :global(.ds-markdown .ds-markdown-paragraph),
+.streamingContent :global(.ds-markdown p),
+.streamingContent :global(.ds-markdown .ds-markdown-paragraph) {
+  margin: 0 0 8px;
+  color: var(--token-text-primary);
+  background: transparent;
+  line-height: 1.55;
+}
+
+.assistantBubble .messageBody :global(.ds-markdown pre),
+.streamingContent :global(.ds-markdown pre) {
+  margin: 12px 0;
+  padding: 12px;
+  background: var(--token-bg-surface);
+  background-color: var(--token-bg-surface);
+  border: 1px solid var(--token-border-base);
+  border-radius: 8px;
+  color: var(--token-text-primary);
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-x: auto;
+}
+
+.assistantBubble .messageBody :global(.ds-markdown .md-code-block),
+.streamingContent :global(.ds-markdown .md-code-block),
+.assistantBubble .messageBody :global(.ds-markdown .md-code-block-light),
+.streamingContent :global(.ds-markdown .md-code-block-light),
+.assistantBubble .messageBody :global(.ds-markdown .md-code-block-dark),
+.streamingContent :global(.ds-markdown .md-code-block-dark) {
+  --ds-md-code-block-border-color: var(--token-border-base);
+  --ds-md-code-block-banner-wrap-background-color: var(--token-bg-surface);
+  --ds-md-code-banner-background-color: var(--token-bg-elevated);
+  margin: 12px 0;
+  background: var(--token-bg-surface);
+  background-color: var(--token-bg-surface);
+  border: 1px solid var(--token-border-base);
+  border-radius: 10px;
+  color: var(--token-text-primary);
+  overflow: hidden;
+}
+
+.assistantBubble .messageBody :global(.ds-markdown .md-code-block-banner-wrap),
+.assistantBubble .messageBody :global(.ds-markdown .md-code-block-banner),
+.assistantBubble .messageBody :global(.ds-markdown .md-code-block-footer),
+.streamingContent :global(.ds-markdown .md-code-block-banner-wrap),
+.streamingContent :global(.ds-markdown .md-code-block-banner),
+.streamingContent :global(.ds-markdown .md-code-block-footer) {
+  background: var(--token-bg-elevated);
+  background-color: var(--token-bg-elevated);
+  color: var(--token-text-primary);
+}
+
+.assistantBubble .messageBody :global(.ds-markdown .md-code-block-language),
+.streamingContent :global(.ds-markdown .md-code-block-language) {
+  color: var(--token-text-secondary);
+}
+
+.assistantBubble .messageBody :global(.ds-markdown .md-code-block-content),
+.streamingContent :global(.ds-markdown .md-code-block-content) {
+  background: var(--token-bg-surface);
+  background-color: var(--token-bg-surface);
+}
+
+.assistantBubble .messageBody :global(.ds-markdown .md-code-block pre),
+.streamingContent :global(.ds-markdown .md-code-block pre) {
+  margin: 0;
+  padding: 12px;
+  background: transparent;
+  background-color: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+.assistantBubble .messageBody :global(.ds-markdown .md-code-block-action-btn),
+.streamingContent :global(.ds-markdown .md-code-block-action-btn) {
+  color: var(--token-text-primary);
+}
+
+.assistantBubble .messageBody :global(.ds-markdown .md-code-block-action-btn:hover),
+.streamingContent :global(.ds-markdown .md-code-block-action-btn:hover) {
+  background: color-mix(in srgb, var(--token-text-primary) 8%, transparent);
+  color: var(--token-text-primary);
+}
+
+.assistantBubble .messageBody :global(.ds-markdown code),
+.streamingContent :global(.ds-markdown code) {
+  padding: 2px 5px;
+  background: color-mix(in srgb, var(--token-text-primary) 10%, transparent);
+  color: var(--token-text-primary);
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.assistantBubble .messageBody :global(.ds-markdown pre code),
+.streamingContent :global(.ds-markdown pre code) {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  border-radius: 0;
+  white-space: pre;
+}
+
+.assistantBubble .messageBody :global(.ds-markdown blockquote),
+.streamingContent :global(.ds-markdown blockquote) {
+  margin: 10px 0;
+  padding: 8px 12px;
+  background: color-mix(in srgb, var(--token-text-primary) 4%, transparent);
+  border-left: 3px solid var(--token-accent-base);
+  color: var(--token-text-primary);
+}
+
+.assistantBubble .messageBody :global(.ds-markdown a),
+.streamingContent :global(.ds-markdown a) {
+  color: var(--token-accent-base);
+}
+
+.assistantBubble .messageBody :global(.ds-markdown ul),
+.assistantBubble .messageBody :global(.ds-markdown ol),
+.streamingContent :global(.ds-markdown ul),
+.streamingContent :global(.ds-markdown ol) {
+  margin: 8px 0;
+  padding-left: 24px;
+  color: var(--token-text-primary);
+}
+
+.assistantBubble .messageBody :global(.ds-markdown li),
+.streamingContent :global(.ds-markdown li) {
+  margin-top: 4px;
+  line-height: 1.55;
+}
+
+.assistantBubble .messageBody :global(.ds-markdown table),
+.streamingContent :global(.ds-markdown table) {
+  width: 100%;
+  margin: 12px 0;
+  border-collapse: collapse;
+  color: var(--token-text-primary);
+  background: transparent;
+}
+
+.assistantBubble .messageBody :global(.ds-markdown th),
+.assistantBubble .messageBody :global(.ds-markdown td),
+.streamingContent :global(.ds-markdown th),
+.streamingContent :global(.ds-markdown td) {
+  padding: 6px 10px;
+  border: 1px solid var(--token-border-base);
+}
+
+.assistantBubble .messageBody :global(.ds-markdown th),
+.streamingContent :global(.ds-markdown th) {
+  background: color-mix(in srgb, var(--token-text-primary) 6%, transparent);
+  background-color: color-mix(in srgb, var(--token-text-primary) 6%, transparent);
+  color: var(--token-text-primary);
+}
+
+.assistantBubble .messageBody :global(.ds-markdown .markdown-table-wrapper),
+.streamingContent :global(.ds-markdown .markdown-table-wrapper) {
+  margin: 12px 0;
+  background: transparent;
+  background-color: transparent;
+}
+
+.assistantBubble .messageBody :global(.ds-markdown hr),
+.streamingContent :global(.ds-markdown hr) {
+  height: 1px;
+  margin: 16px 0;
+  background-color: var(--token-border-base);
+  border: none;
+}
+
+.assistantBubble .messageBody :global(.ds-markdown > :first-child),
+.streamingContent :global(.ds-markdown > :first-child) {
+  margin-top: 0;
+}
+
+.assistantBubble .messageBody :global(.ds-markdown > :last-child),
+.streamingContent :global(.ds-markdown > :last-child) {
+  margin-bottom: 0;
+}
+
+.messageActions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.messageBubble:hover .messageActions {
+  opacity: 1;
+}
+
+.toolMessage {
+  margin: 8px 44px;
+  padding: 8px 12px;
+  background-color: var(--token-bg-surface);
+  border: 1px solid var(--token-border-base);
+  border-radius: 8px;
+}
+
+.toolLabel {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: var(--token-text-secondary);
+}
+
+.toolContent {
+  margin: 0;
+  padding: 8px;
+  background-color: var(--token-bg-elevated);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--token-text-primary);
+  overflow-x: auto;
+}
+
+.toolCallWrapper {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--token-border-base);
+}
+
+.toolCall {
+  padding: 8px;
+  background-color: var(--token-bg-surface);
+  border-radius: 4px;
+}
+
+.toolArgs {
+  margin: 4px 0 0;
+  padding: 8px;
+  background-color: var(--token-bg-elevated);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--token-text-primary);
+  overflow-x: auto;
+}
+
+.streamingMessage {
+  align-self: flex-start;
+  display: flex;
+  gap: 12px;
+  max-width: 85%;
+}
+
+.streamingContent {
+  padding: 12px 16px;
+  border-radius: 12px;
+  background-color: var(--token-bg-elevated);
+  border: 1px solid var(--token-border-base);
+  color: var(--token-text-primary);
+  font-size: 13px;
+  line-height: 1.55;
+  -webkit-user-select: text;
+  user-select: text;
+  cursor: text;
+}
+
+.thinkingIndicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  color: var(--token-text-secondary);
+}
+
+.thinkingDots {
+  display: flex;
+  gap: 4px;
+}
+
+.thinkingDot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--token-accent-base);
+  border-radius: 50%;
+  animation: thinking 1.4s infinite ease-in-out both;
+}
+
+.thinkingDot:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.thinkingDot:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes thinking {
+  0%, 80%, 100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: var(--token-text-secondary);
+}
+
+.emptyIcon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.emptyText {
+  font-size: 14px;
+}
+
+/* 思考过程样式 */
+.reasoningBlock {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background-color: var(--token-bg-surface);
+  border: 1px dashed var(--token-border-base);
+  border-radius: 8px;
+}
+
+.reasoningHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  user-select: none;
+  color: var(--token-accent-base);
+  font-size: 12px;
+}
+
+.reasoningLabel {
+  font-weight: 500;
+}
+
+.reasoningContent {
+  margin-top: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.reasoningContent pre {
+  margin: 0;
+  padding: 8px;
+  background-color: var(--token-bg-elevated);
+  border-radius: 4px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--token-text-secondary);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* 消息附件：图片 / 文件 */
+.attachmentImages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.attachmentImage {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--token-border-base);
+}
+
+.attachmentImageWrapper,
+.attachmentVideoWrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.attachmentVideos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.attachmentVideo {
+  max-width: 320px;
+  border-radius: 8px;
+  background: var(--token-bg-app);
+  border: 1px solid var(--token-border-base);
+}
+
+.attachmentRemove {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  /* 半透明深色底 + 白图标——保证在任何用户图片背景上都可读、可点 */
+  background: rgba(0, 0, 0, 0.55);
+  color: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+  /* 默认半显（让用户能看到按钮存在），hover 满显 + 提升 z-index 以避开
+     AntImage 内部的预览 mask（mask z-index 通常 1，删除按钮要在其上） */
+  opacity: 0.65;
+  z-index: 5;
+  transition: opacity 0.15s, background 0.15s, transform 0.15s;
+}
+
+.attachmentImageWrapper:hover .attachmentRemove,
+.attachmentVideoWrapper:hover .attachmentRemove {
+  opacity: 1;
+}
+
+.attachmentRemove:hover {
+  background: var(--token-status-error);
+  color: var(--token-on-status);
+  transform: scale(1.08);
+}
+
+.attachmentRemoveInline {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--token-text-tertiary);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.attachmentRemoveInline:hover {
+  background: var(--token-border-base);
+  color: var(--token-text-primary);
+}
+
+.attachmentFiles {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.attachmentFile {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--token-bg-elevated);
+  border: 1px solid var(--token-border-base);
+  border-radius: 6px;
+  color: var(--token-text-primary);
+  font-size: 12px;
+  max-width: 100%;
+}
+
+.attachmentFileName {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

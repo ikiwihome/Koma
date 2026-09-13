@@ -1,0 +1,35 @@
+.panel {
+  background: var(--token-bg-surface);
+  border-left: 1px solid var(--token-border-subtle);
+}
+
+.header,
+.section {
+  border-bottom: 1px solid var(--token-border-subtle);
+}
+
+.subsection {
+  border-top: 1px solid var(--token-border-subtle);
+}
+
+.field {
+  background: var(--token-bg-elevated);
+  border: 1px solid var(--token-border-base);
+  color: var(--token-text-primary);
+
+  &:focus {
+    border-color: var(--token-status-info);
+  }
+}
+
+.fieldPurple:focus {
+  border-color: var(--token-accent-base);
+}
+
+.fieldGreen:focus {
+  border-color: var(--token-status-success);
+}
+
+.fieldBlue:focus {
+  border-color: var(--token-status-info);
+}

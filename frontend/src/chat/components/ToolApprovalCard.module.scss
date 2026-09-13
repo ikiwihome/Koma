@@ -1,0 +1,68 @@
+.card {
+  margin-top: 12px;
+  border: 1px solid color-mix(in srgb, var(--token-status-warning) 45%, transparent);
+  background: color-mix(in srgb, var(--token-status-warning) 12%, transparent);
+}
+
+.card :global(.ant-card-head) {
+  background: color-mix(in srgb, var(--token-status-warning) 16%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--token-status-warning) 45%, transparent);
+}
+
+.warningIcon {
+  color: var(--token-status-warning);
+  font-size: 16px;
+}
+
+.callList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.callItem {
+  padding: 12px;
+  background: var(--token-bg-card);
+  border: 1px solid var(--token-border-subtle);
+  border-radius: 8px;
+}
+
+.callHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.toolInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolIcon {
+  color: var(--token-status-info);
+}
+
+.namespace {
+  font-size: 10px;
+  padding: 0 4px;
+  line-height: 1.4;
+}
+
+.args {
+  margin: 0;
+  padding: 8px;
+  background: var(--token-bg-elevated);
+  border-radius: 4px;
+  font-size: 12px;
+  overflow-x: auto;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.hint {
+  margin-top: 12px;
+  margin-bottom: 0;
+  font-size: 12px;
+}

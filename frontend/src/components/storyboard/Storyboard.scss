@@ -1,0 +1,415 @@
+/* Storyboard Styles */
+
+.storyboardContainer {
+  flex: 1;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  background: var(--token-bg-app);
+}
+
+.storyboardEmpty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.storyboardLoading {
+  align-items: center;
+  justify-content: center;
+}
+
+.storyboardEmptyContent {
+  margin: 100px auto;
+}
+
+.storyboardLoadingIcon {
+  font-size: 24px;
+}
+
+.storyboardHint {
+  font-size: 12px;
+}
+
+.storyboardEditControls {
+  width: 100%;
+}
+
+.storyboardCompactFormItem {
+  margin-bottom: 0;
+}
+
+.storyboardCameraSelect {
+  width: 160px;
+}
+
+.storyboardDurationInput {
+  width: 80px;
+}
+
+.storyboardEmotionItem {
+  margin-top: var(--token-space-lg);
+}
+
+.storyboardMain {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.storyboardHeader {
+  height: 56px;
+  border-bottom: 1px solid var(--token-border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  background: var(--token-bg-surface);
+}
+
+.headerStat {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--token-text-tertiary);
+}
+
+.storyboardList {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  background: var(--token-bg-app);
+}
+
+/* 镜头卡片 */
+.shotCard {
+  position: relative;
+  display: flex;
+  gap: 16px;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--token-border-subtle);
+  background: var(--token-bg-card);
+  margin-bottom: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.shotCard:hover {
+  background: var(--token-bg-elevated);
+  border-color: var(--token-border-base);
+}
+
+.shotCard.selected {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--token-accent-base) 8%, transparent) 0%, color-mix(in srgb, var(--token-accent-base) 2%, transparent) 100%);
+  border-color: var(--token-accent-base);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--token-accent-base) 25%, transparent), 0 4px 12px color-mix(in srgb, var(--token-bg-app) 30%, transparent);
+}
+
+.shotCard.selected .shotIndex .ant-badge-count {
+  background: var(--token-accent-base);
+  /* 选中分镜的 badge：accent 实色背景 → 必须配 onAccent 对比文字（亮主题下 text-primary 是深色 = 蓝底黑字看不见） */
+  color: var(--token-on-accent);
+  border-color: var(--token-accent-base);
+}
+
+.shotCard.selected .scriptContent {
+  color: var(--token-accent-base) !important;
+}
+
+.shotCard.selected .shotThumbnail {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--token-accent-base) 50%, transparent);
+}
+
+.shotCard.selected .shotThumbnail img {
+  opacity: 1;
+}
+
+.shotIndex {
+  position: absolute;
+  left: -12px;
+  top: 16px;
+  z-index: 10;
+}
+
+.shotIndex .ant-badge-count {
+  background: var(--token-bg-elevated);
+  color: var(--token-text-secondary);
+  border: 1px solid var(--token-border-base);
+  font-size: 10px;
+  min-width: 24px;
+  height: 24px;
+  line-height: 24px;
+  border-radius: 50%;
+}
+
+/* 缩略图区域 */
+.shotThumbnail {
+  width: 192px;
+  flex-shrink: 0;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--token-bg-app);
+}
+
+.shotThumbnail .ant-image {
+  display: block;
+}
+
+.shotThumbnail img {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+
+.shotCard:hover .shotThumbnail img {
+  opacity: 1;
+}
+
+.thumbnailOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--token-bg-app) 40%, transparent);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.shotCard:hover .thumbnailOverlay {
+  opacity: 1;
+}
+
+.playIcon {
+  font-size: 40px;
+  color: color-mix(in srgb, var(--token-text-primary) 85%, transparent);
+}
+
+.durationTag {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  background: color-mix(in srgb, var(--token-bg-app) 70%, transparent);
+  backdrop-filter: blur(4px);
+  border: none;
+  color: var(--token-text-primary);
+  font-size: 10px;
+  font-family: monospace;
+}
+
+.shotTypeTag {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  background: color-mix(in srgb, var(--token-bg-app) 50%, transparent);
+  backdrop-filter: blur(4px);
+  border: 1px solid color-mix(in srgb, var(--token-text-primary) 10%, transparent);
+  color: var(--token-text-primary);
+  font-size: 10px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.noImageTag {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 10px;
+}
+
+.shotCard.confirmed {
+  border-color: color-mix(in srgb, var(--token-status-success) 40%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--token-status-success) 5%, transparent) 0%, transparent 100%);
+}
+
+/* 内容区 */
+.shotContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.scriptContent {
+  color: var(--token-text-primary) !important;
+  font-weight: 500;
+  font-size: 15px;
+  margin-bottom: 8px !important;
+}
+
+.shotCard:hover .scriptContent {
+  color: var(--token-accent-base) !important;
+}
+
+.shotDescription {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  background: var(--token-bg-app);
+  padding: 8px;
+  border-radius: 4px;
+  border: 1px solid color-mix(in srgb, var(--token-border-subtle) 50%, transparent);
+  margin-bottom: 8px;
+}
+
+.shotDescription .anticon {
+  color: var(--token-text-muted);
+  margin-top: 3px;
+  flex-shrink: 0;
+}
+
+.descText {
+  font-size: 12px !important;
+  color: var(--token-text-tertiary) !important;
+  margin: 0 !important;
+  line-height: 1.5 !important;
+}
+
+.shotFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+/* 右侧面板 */
+.directorPanel {
+  width: 320px;
+  border-left: 1px solid var(--token-border-subtle);
+  background: var(--token-bg-surface);
+  display: flex;
+  flex-direction: column;
+  box-shadow: -8px 0 24px color-mix(in srgb, var(--token-bg-app) 30%, transparent);
+}
+
+.panelHeader {
+  height: 56px;
+  border-bottom: 1px solid var(--token-border-subtle);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  background: var(--token-bg-surface);
+}
+
+.panelContent {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.panelContent .ant-form-item-label > label {
+  color: var(--token-text-tertiary);
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.engineCard {
+  background: var(--token-bg-elevated) !important;
+  border-color: color-mix(in srgb, var(--token-accent-base) 40%, transparent) !important;
+}
+
+.engineInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.engineIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--token-accent-base) 0%, var(--token-accent-hover) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* accent 渐变实色 → onAccent 对比文字 */
+  color: var(--token-on-accent);
+  font-weight: bold;
+  font-size: 11px;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--token-accent-base) 30%, transparent);
+}
+
+.statusBadge {
+  margin-left: auto;
+}
+
+.statusBadge .ant-badge-status-dot {
+  box-shadow: 0 0 8px color-mix(in srgb, var(--token-status-success) 80%, transparent);
+}
+
+.promptTextarea {
+  width: 100%;
+  background: var(--token-bg-app);
+  border: 1px solid var(--token-border-base);
+  border-radius: 8px;
+  padding: 12px;
+  color: var(--token-text-primary);
+  font-size: 13px;
+  line-height: 1.5;
+  resize: none;
+  transition: border-color 0.2s ease;
+}
+
+.promptTextarea:focus {
+  outline: none;
+  border-color: var(--token-accent-base);
+  box-shadow: 0 0 0 2px var(--token-accent-glow);
+}
+
+.panelActions {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--token-border-subtle);
+}
+
+.panelEmpty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--token-text-muted);
+  padding: 24px;
+  text-align: center;
+}
+
+/* Antd 覆盖 */
+.storyboardContainer .ant-segmented {
+  background: var(--token-bg-elevated);
+}
+
+.storyboardContainer .ant-segmented-item {
+  color: var(--token-text-secondary);
+}
+
+.storyboardContainer .ant-segmented-item-selected {
+  /* 选中态：accent 实色背景必须配 onAccent 对比文字（在亮主题深蓝底上白字，
+     不能用 text-primary —— 那在亮主题下是深色 = 蓝底黑字看不见） */
+  background: var(--token-accent-base);
+  color: var(--token-on-accent);
+}
+
+.storyboardContainer .ant-segmented-item-selected .ant-segmented-item-label,
+.storyboardContainer .ant-segmented-item-selected .ant-segmented-item-icon {
+  color: var(--token-on-accent);
+}
+
+.storyboardContainer .ant-select-selector {
+  background: var(--token-bg-elevated) !important;
+  border-color: var(--token-border-base) !important;
+}
+
+.storyboardContainer .ant-select-selection-item {
+  color: var(--token-text-primary) !important;
+}

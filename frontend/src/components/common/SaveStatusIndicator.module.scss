@@ -1,0 +1,36 @@
+.container {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: inherit;
+  font-size: 12px;
+  cursor: default;
+  transition: background-color 0.2s;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.icon {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.saved {
+  color: var(--token-status-success);
+}
+
+.saving {
+  color: var(--token-status-info);
+}
+
+.dirty {
+  color: var(--token-status-warning);
+}
+
+.error {
+  color: var(--token-status-error);
+}

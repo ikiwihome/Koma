@@ -1,0 +1,62 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+public/electron
+public/dist
+frontend/dist
+electron/dist
+out
+
+# Test coverage
+frontend/coverage
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Local agent / internal tooling scratch dirs
+.spec-workflow/
+.codex/
+.serena/
+.claude/
+openspec/
+agent-prompts/
+.worktrees/
+template_/
+
+# Local environment overrides
+.env
+.env.local
+.env.*.local
+
+# Internal scratch notes (kept out of public repo)
+findings.md
+progress.md
+task_plan.md
+TASK_PLAN.md
+TASK_LIST.md
+*_ANALYSIS.md
+*_REVIEW.md
+
+# Private build credential (loaded only by Electron)
+resources/agnes-defaults.local.json
+resources/koma-hosting-defaults.local.json
+resources/koma-hosting-defaults.enc.json
+resources/agnes-defaults.enc.json

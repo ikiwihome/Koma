@@ -1,0 +1,336 @@
+.shot-card {
+  position: relative;
+  background: var(--token-bg-card);
+  border: 1px solid var(--token-border-subtle);
+  border-radius: 8px;
+  margin-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.2s ease;
+  overflow: hidden;
+
+  /* 性能：让浏览器把每个分镜视为独立渲染单元，
+     滚动时只重绘进入/离开视口的卡片，不会因一个 cell 改动牵连整列重排重绘。
+     contain: layout (子树布局独立) + paint (子树绘制独立) + style (样式作用域)
+     content-visibility: auto 进一步让离屏卡片跳过绘制（只占位） */
+  contain: layout paint style;
+  content-visibility: auto;
+  contain-intrinsic-size: 480px; /* 与固定行高对齐，避免 content-visibility:auto 计算占位时跳动 */
+}
+
+/* 媒体行 header 内的 Segmented：缩小到与文本按钮等高 + 平滑滑块动画 */
+.shot-mode-seg {
+  font-size: 10px !important;
+}
+
+.shot-mode-seg.ant-segmented {
+  padding: 1px !important;
+  background: var(--token-bg-elevated);
+}
+
+.shot-mode-seg.ant-segmented .ant-segmented-item {
+  min-height: 18px;
+  padding: 0 6px;
+  font-size: 10px;
+  line-height: 18px;
+  transition: color 0.18s ease;
+  cursor: pointer;
+}
+
+.shot-mode-seg.ant-segmented .ant-segmented-item-label {
+  min-height: 18px;
+  line-height: 18px;
+  padding: 0;
+}
+
+/* 滑块动画：覆盖默认 transition 让切换更柔顺 */
+.shot-mode-seg.ant-segmented .ant-segmented-thumb,
+.shot-mode-seg.ant-segmented .ant-segmented-item-selected {
+  transition:
+    transform 0.22s cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 0.22s ease,
+    color 0.18s ease;
+}
+
+.shot-storyboard-inherit {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 18px;
+  padding: 0 5px 0 4px;
+  border: 1px solid var(--token-border-subtle);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--token-bg-elevated) 82%, transparent);
+  color: var(--token-text-secondary);
+  font-size: 10px;
+  line-height: 18px;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+}
+
+.shot-storyboard-inherit:hover {
+  border-color: var(--token-border-base);
+  color: var(--token-text-primary);
+}
+
+.shot-storyboard-inherit.disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.shot-storyboard-inherit input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.shot-storyboard-inherit-switch {
+  position: relative;
+  width: 18px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--token-bg-hover);
+  box-shadow: inset 0 0 0 1px var(--token-border-base);
+  transition: background-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.shot-storyboard-inherit-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--token-text-muted);
+  transition: transform 0.18s ease, background-color 0.18s ease;
+}
+
+.shot-storyboard-inherit input:checked + .shot-storyboard-inherit-switch {
+  background: color-mix(in srgb, var(--token-accent-base) 22%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--token-accent-base) 52%, transparent);
+}
+
+.shot-storyboard-inherit input:checked + .shot-storyboard-inherit-switch::after {
+  transform: translateX(8px);
+  background: var(--token-accent-base);
+}
+
+.shot-storyboard-inherit-label {
+  letter-spacing: 0;
+}
+
+.shot-card:hover {
+  background: var(--token-bg-elevated);
+  border-color: var(--token-border-base);
+}
+
+.shot-card.selected {
+  background: color-mix(in srgb, var(--token-accent-base) 5%, transparent);
+  border-color: color-mix(in srgb, var(--token-accent-base) 40%, transparent);
+}
+
+.shot-card.confirmed {
+  border-left: 4px solid var(--token-accent-base);
+}
+
+.shot-card.active {
+  background: color-mix(in srgb, var(--token-status-info) 8%, transparent);
+  border-color: color-mix(in srgb, var(--token-status-info) 50%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--token-status-info) 15%, transparent);
+}
+
+/* Header */
+.shot-card-header {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--token-border-subtle);
+  gap: 12px;
+}
+
+.shot-card-index {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 60px;
+}
+
+.index-number {
+  font-weight: 600;
+  color: var(--token-text-secondary);
+}
+
+.confirmed-icon {
+  color: var(--token-accent-base);
+}
+
+.shot-card-meta {
+  flex: 1;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.shot-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Character Select Customization */
+.character-select .ant-select-selector {
+  background: var(--token-bg-elevated) !important;
+  border-color: var(--token-border-base) !important;
+  color: var(--token-text-primary) !important;
+}
+
+.character-select .ant-select-arrow {
+  color: var(--token-text-secondary);
+}
+
+.character-select .ant-select-selection-item {
+  background: var(--token-bg-hover) !important;
+  border-color: var(--token-text-muted) !important;
+  color: var(--token-text-primary) !important;
+}
+
+/* Editor Overrides */
+.prompt-editor-container .cm-editor {
+  height: 100% !important;
+  background-color: transparent !important;
+}
+
+.prompt-editor-container .cm-scroller {
+  padding: 8px !important;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+}
+
+/* Shot Prompt Editor - 紧凑模式 */
+.shot-prompt-editor .cm-editor {
+  height: 100% !important;
+  background-color: transparent !important;
+}
+
+.shot-prompt-editor .cm-scroller {
+  padding: 4px 6px !important;
+}
+
+.shot-prompt-editor .cm-content {
+  padding: 0 !important;
+}
+
+.shot-prompt-editor .cm-line {
+  padding: 0 !important;
+}
+
+.shot-script-input {
+  min-height: 100%;
+  padding: 4px 6px;
+}
+
+/* 左侧操作列里的 duration 输入框：极紧凑，让 1-3 位数字能完整展示 */
+.shot-duration-input.ant-input-number {
+  width: 34px;
+  min-width: 34px;
+  background: color-mix(in srgb, var(--token-status-info) 12%, transparent);
+  border-color: color-mix(in srgb, var(--token-status-info) 35%, transparent);
+  border-radius: 2px;
+}
+.shot-duration-input.ant-input-number .ant-input-number-input-wrap,
+.shot-duration-input.ant-input-number .ant-input-number-input {
+  height: 18px;
+  padding: 0 2px;
+  font-size: 10px;
+  line-height: 18px;
+  text-align: center;
+  color: color-mix(in srgb, var(--token-status-info) 45%, white);
+}
+.shot-duration-input.ant-input-number-focused {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--token-status-info) 25%, transparent);
+}
+
+.shot-duration-select {
+  width: 56px;
+}
+
+.shot-prompt-editor-fill {
+  height: 100%;
+}
+
+/* Custom Scrollbar for columns */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--token-border-base);
+  border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--token-text-muted);
+}
+
+.shot-video-progress-overlay {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 6px;
+  background: color-mix(in srgb, var(--token-bg-app) 84%, transparent);
+  backdrop-filter: blur(8px);
+}
+
+.shot-video-progress-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--token-space-xs);
+  color: var(--token-text-secondary);
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.grid-split-frame,
+.grid-split-cell {
+  aspect-ratio: var(--grid-split-aspect-ratio);
+}
+
+.grid-split-line-v {
+  left: var(--grid-line-left);
+  background: color-mix(in srgb, var(--token-text-primary) 70%, transparent);
+}
+
+.grid-split-line-h {
+  top: var(--grid-line-top);
+  background: color-mix(in srgb, var(--token-text-primary) 70%, transparent);
+}
+
+.grid-split-result-grid {
+  grid-template-columns: repeat(var(--grid-size), minmax(0, 1fr));
+}
+
+.grid-split-cell {
+  background-image: var(--grid-cell-bg-image);
+  background-position: var(--grid-cell-bg-position);
+  background-repeat: no-repeat;
+  background-size: var(--grid-cell-bg-size);
+}
+
+.grid-split-cell-index {
+  background: color-mix(in srgb, var(--token-bg-app) 50%, transparent);
+  color: color-mix(in srgb, var(--token-text-primary) 80%, transparent);
+}

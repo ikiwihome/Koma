@@ -1,0 +1,20 @@
+.root {
+  background: var(--token-bg-app);
+}
+
+.toolbar {
+  background: var(--token-bg-surface);
+  border-bottom: 1px solid var(--token-border-subtle);
+}
+
+.preview {
+  aspect-ratio: var(--preview-aspect-ratio);
+  max-width: 100%;
+  max-height: 100%;
+  background: var(--token-bg-app);
+  border: 1px solid var(--token-border-subtle);
+}
+
+.canvas {
+  image-rendering: auto;
+}

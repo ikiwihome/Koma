@@ -1,0 +1,116 @@
+.container {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: var(--token-z-modal);
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  padding: 12px 16px;
+  border-left: 4px solid var(--notification-accent);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--notification-accent) 12%, var(--token-bg-card));
+  box-shadow: var(--token-shadow-sm);
+  cursor: default;
+  animation: task-notification-slide-in 0.3s ease;
+  transition: transform 0.2s;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:hover {
+  transform: translateX(-4px);
+}
+
+.success {
+  --notification-accent: var(--token-status-success);
+}
+
+.error {
+  --notification-accent: var(--token-status-error);
+}
+
+.warning {
+  --notification-accent: var(--token-status-warning);
+}
+
+.info {
+  --notification-accent: var(--token-status-info);
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
+  border-radius: 50%;
+  background: var(--notification-accent);
+  color: var(--token-bg-app);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.content {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.messageClickable {
+  margin-bottom: 4px;
+}
+
+.hint {
+  color: var(--token-text-secondary);
+  font-size: 12px;
+}
+
+.retryButton {
+  margin-top: 8px;
+  padding: 4px 12px;
+  border: none;
+  border-radius: 4px;
+  background: var(--token-status-error);
+  /* status-error 实色按钮 → onStatus（白色）。
+     之前用 bg-app 作文字色，亮主题下 bg-app 是浅灰 → 红底浅灰字对比不足 */
+  color: var(--token-on-status);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.retryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.close {
+  margin-left: 12px;
+  padding: 2px;
+  color: var(--token-text-tertiary);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+@keyframes task-notification-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

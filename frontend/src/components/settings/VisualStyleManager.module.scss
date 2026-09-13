@@ -1,0 +1,97 @@
+.styleImageSlot {
+  margin-top: var(--token-space-sm);
+}
+
+.imageFrame {
+  position: relative;
+  display: flex;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px dashed color-mix(in srgb, var(--token-text-primary) 18%, transparent);
+  border-radius: var(--token-radius-sm);
+  background: color-mix(in srgb, var(--token-text-primary) 4%, transparent);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.emptyText {
+  font-size: 12px;
+}
+
+.overlayActions {
+  position: absolute;
+  right: var(--token-space-sm);
+  bottom: var(--token-space-sm);
+  z-index: 2;
+}
+
+.restoreButton {
+  position: absolute;
+  left: var(--token-space-sm);
+  top: var(--token-space-sm);
+  z-index: 2;
+}
+
+.overlayButton {
+  color: var(--token-bg-app);
+  border-color: color-mix(in srgb, var(--token-text-primary) 25%, transparent);
+  background: color-mix(in srgb, var(--token-bg-app) 55%, transparent);
+}
+
+.overlayButtonDisabled {
+  color: color-mix(in srgb, var(--token-text-primary) 35%, transparent);
+}
+
+.hiddenImage {
+  display: none;
+}
+
+.loadingState {
+  padding: 40px;
+  text-align: center;
+}
+
+.cardSpacing {
+  margin-bottom: var(--token-space-lg);
+}
+
+.clickablePreset {
+  cursor: pointer;
+}
+
+.dangerIcon {
+  color: var(--token-status-error);
+}
+
+.systemIcon {
+  font-size: 24px;
+  color: var(--token-status-info);
+}
+
+.builtinIcon {
+  font-size: 20px;
+  color: var(--token-status-success);
+}
+
+.compactItem {
+  margin-bottom: 0;
+}
+
+.previewParagraph {
+  margin-bottom: var(--token-space-sm);
+}
+
+.previewParagraphLast {
+  margin-bottom: 0;
+}
+
+.breakCode {
+  word-break: break-all;
+}

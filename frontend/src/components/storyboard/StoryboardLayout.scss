@@ -1,0 +1,72 @@
+.storyboard-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--token-bg-app);
+  overflow: hidden;
+}
+
+.storyboard-header {
+  height: 56px;
+  border-bottom: 1px solid var(--token-border-subtle);
+  background: var(--token-bg-surface);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  flex-shrink: 0;
+}
+
+.storyboard-body {
+  flex: 1;
+  display: flex;
+  min-height: 0; /* Important for nested scroll */
+}
+
+.storyboard-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.storyboard-toolbar {
+  padding: 12px 24px;
+  background: var(--token-bg-surface);
+  border-bottom: 1px solid var(--token-border-subtle);
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.storyboard-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+  background: var(--token-bg-app);
+}
+
+.storyboard-sidebar {
+  width: 320px;
+  border-left: 1px solid var(--token-border-subtle);
+  background: var(--token-bg-surface);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.storyboardStudio,
+.timelineArea {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.storyboardStudio {
+  background: var(--token-bg-app);
+}
+
+.timelineArea {
+  flex: 1;
+}

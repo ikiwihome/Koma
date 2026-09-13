@@ -1,0 +1,394 @@
+/* AssetManager Styles */
+/* P2 Update: Switch to CSS Grid for fixed-height layout without double scrollbars */
+
+/* ============ Panel Layout ============ */
+.assetManagerPanel {
+  display: grid;
+  grid-template-columns: 380px 1fr; /* Fixed Left (380px for better content display), Fluid Right */
+  grid-template-rows: 1fr auto;     /* Main Content, Footer */
+  height: 100%;                     /* Take full available height */
+  overflow: hidden;                 /* Prevent outer scroll */
+  background: var(--token-bg-card);
+  position: relative;
+}
+
+.assetManagerPanelLoading {
+  align-items: center;
+  justify-content: center;
+}
+
+/* Left Column: List */
+.assetListSection {
+  grid-column: 1;
+  grid-row: 1 / -1; /* Span full height */
+  border-right: 1px solid var(--token-border-subtle);
+  display: flex;
+  flex-direction: column;
+  background: var(--token-bg-app);
+  overflow: hidden; /* Internal scrolling handled by children */
+}
+
+/* Right Column: Detail Content */
+.assetDetailSection {
+  grid-column: 2;
+  grid-row: 1;
+  overflow-y: auto; /* Internal scrolling only */
+  padding: 24px;
+}
+
+/* Right Column: Footer (Fixed at bottom right) */
+.assetFooter {
+  grid-column: 2;
+  grid-row: 2;
+  border-top: 1px solid var(--token-border-subtle);
+  padding: 16px 24px;
+  background: var(--token-bg-card);
+  display: flex;
+  justify-content: flex-end; /* Align Next button to right */
+  gap: 16px;
+  z-index: 10;
+}
+
+/* ============ Asset List Components ============ */
+
+.assetListPanel {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.assetListPanel .ant-tabs {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.assetListPanel .ant-tabs-nav {
+  margin: 0;
+  padding: 8px 12px 0;
+}
+
+.assetListPanel .ant-tabs-content-holder {
+  flex: 1;
+  overflow: hidden;
+}
+
+.assetListPanel .ant-tabs-content {
+  height: 100%;
+}
+
+.assetListPanel .ant-tabs-tabpane {
+  height: 100%;
+}
+
+.assetListContent {
+  height: 100%;
+  overflow-y: auto;
+  padding: 8px;
+}
+
+.assetListFilter {
+  padding: 12px;
+  border-top: 1px solid var(--token-border-subtle);
+  font-size: 12px;
+  color: var(--token-text-secondary);
+}
+
+/* ============ Asset List Item ============ */
+.assetListItem {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s;
+  background: var(--token-bg-card);
+  border: 1px solid transparent;
+}
+
+.assetListItem:hover {
+  background: var(--token-bg-elevated);
+  border-color: var(--token-border-base);
+}
+
+.assetListItem.selected {
+  background: var(--token-bg-elevated);
+  border: 1px solid var(--token-accent-base);
+}
+
+.assetListItemThumb {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--token-bg-card);
+  flex-shrink: 0;
+}
+
+.assetListItemThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.assetListItemNoImage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--token-text-muted);
+  font-size: 24px;
+}
+
+.assetListItemInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.assetListItemName {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--token-text-primary);
+}
+
+.assetListItemSub {
+  font-size: 10px;
+}
+
+.assetListItemBound {
+  color: var(--token-accent-base);
+  font-size: 12px;
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+/* Grid Layout for Asset List */
+.assetListContent {
+  height: 100%;
+  overflow-y: auto;
+  padding: 8px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  align-content: start;
+}
+
+.assetListAddBtn {
+  grid-column: 1 / -1;
+  height: 80px !important;
+}
+
+/* ============ Asset Detail Panel (Creator Layout) ============ */
+.assetDetailPanel {
+  background: var(--token-bg-app);
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  border: none;
+  border-radius: 0;
+}
+
+/* --- Creator Layout: Sidebar --- */
+.creatorSidebar {
+  width: 380px;
+  min-width: 380px;
+  display: flex;
+  flex-direction: column;
+  background: var(--token-bg-card);
+  border-right: 1px solid var(--token-border-subtle);
+  z-index: 2;
+}
+
+.creatorSidebarHeader {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--token-border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--token-bg-card);
+}
+
+.creatorSidebarTitle {
+  font-size: 16px;
+}
+
+.creatorSidebarContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  padding-bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.creatorSidebarActions {
+  position: sticky;
+  bottom: 0;
+  background: var(--token-bg-card);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px 20px 20px;
+  margin: 0 -20px;
+  border-top: 1px solid var(--token-border-subtle);
+  z-index: 5;
+}
+
+/* --- Creator Layout: Canvas --- */
+.creatorCanvas {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--token-bg-app);
+  position: relative;
+  min-width: 0;
+}
+
+.creatorCanvasToolbar {
+  height: 56px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: color-mix(in srgb, var(--token-bg-card) 90%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--token-border-subtle);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+}
+
+.creatorCanvasBody {
+  flex: 1;
+  padding: 80px 24px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.creatorMediaViewer {
+  max-width: 100%;
+  max-height: 100%;
+  box-shadow: 0 0 50px color-mix(in srgb, var(--token-bg-app) 60%, transparent);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.creatorMediaViewer img,
+.creatorMediaViewer video {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.creatorMediaPreview {
+  cursor: pointer;
+}
+
+.creatorMediaPlaceholder {
+  color: var(--token-text-muted);
+  text-align: center;
+  padding: 48px;
+}
+
+.creatorMediaPlaceholder .anticon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  display: block;
+}
+
+/* --- Progress in Sidebar --- */
+.creatorProgress {
+  padding: 12px;
+  background: var(--token-bg-elevated);
+  border-radius: 6px;
+  border: 1px solid var(--token-border-base);
+}
+
+.creatorProgressHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.creatorProgressText {
+  font-size: 12px;
+}
+
+.transparent-modal .ant-modal-content {
+  background: transparent;
+  box-shadow: none;
+}
+
+.transparent-modal .ant-modal-body {
+  padding: 0;
+  background: transparent;
+}
+
+.transparentPreviewImage {
+  max-width: 95vw;
+  max-height: 95vh;
+  cursor: pointer;
+}
+
+/* --- Empty State --- */
+.assetDetailEmpty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--token-text-muted);
+  font-size: 14px;
+}
+
+/* --- Sidebar Form Overrides --- */
+.creatorSidebarContent textarea {
+  background-color: var(--token-bg-app) !important;
+  border-color: var(--token-border-base) !important;
+  font-family: 'Menlo', 'Monaco', 'Consolas', monospace;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.creatorSidebarContent .ant-form-item-label > label {
+  color: var(--token-text-secondary);
+  font-size: 12px;
+}
+
+/* --- Toolbar Divider --- */
+.toolbarDivider {
+  width: 1px;
+  height: 20px;
+  background: var(--token-border-base);
+  margin: 0 12px;
+}
+
+/* ============ Legacy & Misc Styles ============ */
+.assetPlaceholder {
+  width: 100%;
+  aspect-ratio: 1/1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.assetPlaceholder svg {
+  width: 100%;
+  height: 100%;
+}

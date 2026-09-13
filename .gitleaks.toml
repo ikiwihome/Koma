@@ -1,0 +1,22 @@
+# gitleaks 配置：扩展默认规则，允许业务网关 URL 与公钥常量
+# 参考 https://github.com/gitleaks/gitleaks
+
+title = "Koma Studio gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Allow business-domain URLs and the bundled update public key"
+paths = [
+  '''build/''',
+  '''resources/ffmpeg/''',
+  '''.git\.private-backup/''',
+  '''.git\.linghui-included-backup/''',
+]
+regexes = [
+  # 业务网关 URL（公开域名，非凭据）
+  '''komaapi\.com''',
+  # 自动更新公钥（base64 PEM PUBLIC KEY 非私钥）
+  '''-----BEGIN PUBLIC KEY-----''',
+]

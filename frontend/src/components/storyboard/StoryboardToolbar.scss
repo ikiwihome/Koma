@@ -1,0 +1,18 @@
+.storyboard-toolbar-inner {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.selection-actions {
+  margin-left: 16px;
+  padding-left: 16px;
+  border-left: 1px solid var(--token-border-subtle);
+}
+
+.toolbar-stats {
+  margin-left: auto;
+  font-size: 12px;
+}

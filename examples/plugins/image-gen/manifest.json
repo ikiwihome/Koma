@@ -1,0 +1,18 @@
+{
+  "id": "image-gen",
+  "name": "图片生成工具",
+  "version": "1.0.0",
+  "description": "提供文生图、图生视频等 AI 生成能力，通过 Provider 渠道调用底层模型",
+  "category": "mcp",
+  "engine": { "minAppVersion": "1.0.0", "sdkVersion": "1.0.0" },
+  "scopes": ["mcp:server", "mcp:tool"],
+  "entry": { "backend": "dist/index.js" },
+  "mcpMeta": {
+    "transport": "internal",
+    "tools": [
+      { "name": "generate_image", "description": "文生图 - 根据文字描述生成图片" },
+      { "name": "image_to_video", "description": "图生视频 - 根据图片和描述生成视频" },
+      { "name": "list_providers", "description": "列出可用的生成模型/渠道" }
+    ]
+  }
+}

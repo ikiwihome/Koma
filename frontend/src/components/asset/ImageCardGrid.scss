@@ -1,0 +1,274 @@
+/* ImageCardGrid 多图片卡片网格样式 */
+
+.imageCardGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.imageCards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+  overflow-y: auto;
+  align-content: flex-start;
+}
+
+.imageCard {
+  width: 100px;
+  height: 70px;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  border: 2px solid transparent;
+  background: var(--token-bg-card);
+  transition: border-color 0.2s;
+}
+
+.imageCard:hover {
+  border-color: var(--token-border-base);
+}
+
+.imageCard.selected {
+  border-color: var(--token-accent-base);
+}
+
+.imageCard img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imageCard .selectedIcon {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  color: var(--token-accent-base);
+  font-size: 12px;
+  background: color-mix(in srgb, var(--token-bg-app) 60%, transparent);
+  border-radius: 50%;
+}
+
+.imageCard .cardOverlay {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--token-bg-app) 50%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.imageCard:hover .cardOverlay {
+  opacity: 1;
+}
+
+.imageCard .overlayBtn {
+  color: var(--token-text-primary);
+  padding: 2px;
+}
+
+.assetMenuThumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 2px;
+  object-fit: cover;
+}
+
+.imageCard.addCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--token-border-base);
+  color: var(--token-text-tertiary);
+  gap: 2px;
+}
+
+.imageCard.addCard:hover {
+  border-color: var(--token-text-muted);
+  color: var(--token-text-secondary);
+}
+
+.addCardText {
+  font-size: 10px;
+}
+
+.imageCardGrid .generateBtn {
+  align-self: flex-start;
+  font-size: 11px;
+  padding: 0 6px;
+  height: 22px;
+}
+
+/* ========== compact 模式：2×2 固定槽位 ========== */
+
+.imageCardGrid.compact {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 4px;
+  padding: 2px;
+}
+
+/* 空数组 → 空白占位（不再渲染 4 个空槽避免视觉噪声） */
+.imageCardGrid.compactEmpty {
+  height: 100%;
+}
+
+.compactGrid2x2 {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 4px;
+}
+
+.compactGrid2x2 .slot,
+.compactGrid2x2 .slotEmpty {
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  min-height: 0;  /* 允许 grid item 在固定行高下不撑爆 */
+}
+
+.compactGrid2x2 .slot {
+  cursor: pointer;
+  background: var(--token-bg-card);
+  border: 2px solid transparent;
+  transition: border-color 0.18s ease;
+}
+
+.compactGrid2x2 .slot:hover {
+  border-color: var(--token-border-base);
+}
+
+.compactGrid2x2 .slot.selected {
+  border-color: var(--token-accent-base);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--token-accent-base) 36%, transparent);
+}
+
+.compactGrid2x2 .slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.compactGrid2x2 .slot .selectedIcon {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  color: var(--token-accent-base);
+  font-size: 14px;
+  background: color-mix(in srgb, var(--token-bg-app) 60%, transparent);
+  border-radius: 50%;
+}
+
+.compactGrid2x2 .slot .slotIndexBadge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--token-bg-app) 60%, transparent);
+  color: var(--token-text-secondary);
+  font-family: ui-monospace, monospace;
+  pointer-events: none;
+}
+
+.compactGrid2x2 .slot .slotOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 2px;
+  padding: 4px;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--token-bg-app) 60%, transparent),
+    color-mix(in srgb, var(--token-bg-app) 8%, transparent) 50%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+.compactGrid2x2 .slot:hover .slotOverlay {
+  opacity: 1;
+}
+
+.compactGrid2x2 .slot .slotOverlay .overlayBtn {
+  pointer-events: auto;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  background: color-mix(in srgb, var(--token-bg-app) 50%, transparent);
+}
+
+.compactGrid2x2 .slotEmpty {
+  border: 1px dashed var(--token-border-subtle);
+  background: color-mix(in srgb, var(--token-bg-elevated) 36%, transparent);
+}
+
+.compactFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 0 2px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.compactPager {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--token-text-tertiary);
+}
+
+.compactPager .pagerBtn {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  font-size: 10px;
+}
+
+.compactPager .pagerText {
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+  min-width: 28px;
+  text-align: center;
+}
+
+.compactActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.compactActions .actionBtn {
+  height: 22px;
+  padding: 0 6px;
+  font-size: 11px;
+}
+
+.compactActions .actionBtn.primary {
+  color: var(--token-status-info);
+  font-weight: 500;
+}
+
+.hiddenPreviewImages {
+  display: none;
+}

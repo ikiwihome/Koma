@@ -1,0 +1,100 @@
+.styleReferenceRoot {
+  margin-top: 4px;
+}
+
+.styleReferenceFrame {
+  position: relative;
+  display: flex;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--token-radius-sm);
+  background: color-mix(in srgb, var(--token-text-primary) 4%, transparent);
+}
+
+.styleReferenceFrameFallback {
+  border: 1px dashed color-mix(in srgb, var(--token-text-primary) 18%, transparent);
+}
+
+.styleReferenceFrameOverride {
+  border: 1px solid color-mix(in srgb, var(--token-status-info) 40%, transparent);
+}
+
+.styleReferenceImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.styleReferenceEmpty {
+  font-size: 12px;
+}
+
+.styleReferenceActions {
+  position: absolute;
+  right: var(--token-space-sm);
+  bottom: var(--token-space-sm);
+  z-index: 2;
+}
+
+.styleReferenceRestore {
+  position: absolute;
+  left: var(--token-space-sm);
+  top: var(--token-space-sm);
+  z-index: 2;
+}
+
+.overlayButton {
+  color: var(--token-bg-app);
+  border-color: color-mix(in srgb, var(--token-text-primary) 25%, transparent);
+  background: color-mix(in srgb, var(--token-bg-app) 55%, transparent);
+}
+
+.overlayButtonDisabled {
+  color: color-mix(in srgb, var(--token-text-primary) 35%, transparent);
+}
+
+.hiddenImage {
+  display: none;
+}
+
+.styleReferenceHint {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.disabledInput {
+  color: var(--token-text-muted);
+}
+
+.tabIntro {
+  margin-bottom: var(--token-space-lg);
+  font-size: 13px;
+  color: var(--token-text-secondary);
+}
+
+.drawerFooter {
+  text-align: right;
+}
+
+.modeBlock {
+  margin-bottom: var(--token-space-xl);
+}
+
+.modeTitle {
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.modeDescription {
+  margin-bottom: var(--token-space-md);
+  font-size: 12px;
+  color: var(--token-text-secondary);
+}
+
+.disabledDuration {
+  opacity: 0.5;
+}

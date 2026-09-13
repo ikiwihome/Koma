@@ -1,0 +1,29 @@
+.container {
+  display: flex;
+  min-width: 800px;
+  height: 100%;
+  flex-direction: column;
+  background: var(--token-bg-app);
+}
+
+.upper {
+  display: flex;
+  flex: 1;
+  min-height: 280px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--token-border-subtle);
+}
+
+.assetPanel {
+  width: clamp(200px, 18vw, 320px);
+  min-width: 200px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-right: 1px solid var(--token-border-subtle);
+}
+
+.lower {
+  height: clamp(180px, 30vh, 400px);
+  min-height: 160px;
+  flex-shrink: 0;
+}

@@ -1,0 +1,295 @@
+/* VideoCardGrid 多视频卡片网格样式 */
+
+.videoCardGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.videoCards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1;
+  overflow-y: auto;
+  align-content: flex-start;
+}
+
+.videoCard {
+  width: 80px;
+  height: 56px;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  border: 2px solid transparent;
+  background: var(--token-bg-card);
+  transition: border-color 0.2s;
+}
+
+.videoCard:hover {
+  border-color: var(--token-border-base);
+}
+
+.videoCard.selected {
+  border-color: var(--token-accent-base);
+}
+
+.videoCard img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.videoCard .videoPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--token-text-muted);
+  font-size: 18px;
+}
+
+.videoCard .versionLabel {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  font-size: 9px;
+  color: var(--token-text-primary);
+  background: color-mix(in srgb, var(--token-bg-app) 60%, transparent);
+  padding: 0 4px;
+  border-radius: 2px;
+}
+
+.videoCard .selectedIcon {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  color: var(--token-accent-base);
+  font-size: 12px;
+  background: color-mix(in srgb, var(--token-bg-app) 60%, transparent);
+  border-radius: 50%;
+}
+
+.videoCard .cardOverlay {
+  position: absolute;
+  inset: 0;
+  background: color-mix(in srgb, var(--token-bg-app) 50%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.videoCard:hover .cardOverlay {
+  opacity: 1;
+}
+
+.videoCard .overlayBtn {
+  color: var(--token-text-primary);
+  padding: 2px;
+}
+
+.videoCard.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--token-border-base);
+  color: var(--token-text-muted);
+  gap: 2px;
+  cursor: default;
+}
+
+.emptyVideoText {
+  font-size: 10px;
+}
+
+.videoCardGrid .generateBtn {
+  align-self: flex-start;
+  font-size: 11px;
+  padding: 0 6px;
+  height: 22px;
+}
+
+.videoPreviewPlayer {
+  width: 100%;
+  max-height: 60vh;
+}
+
+/* ========== compact 模式：2×2 固定槽位（与 ImageCardGrid 同款） ========== */
+
+.videoCardGrid.compact {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 4px;
+  padding: 2px;
+}
+
+.videoCardGrid.compactEmpty {
+  height: 100%;
+}
+
+.videoCardGrid.compact .compactGrid2x2 {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 4px;
+}
+
+.videoCardGrid.compact .slot,
+.videoCardGrid.compact .slotEmpty {
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.videoCardGrid.compact .slot {
+  cursor: pointer;
+  background: var(--token-bg-card);
+  border: 2px solid transparent;
+  transition: border-color 0.18s ease;
+}
+
+.videoCardGrid.compact .slot:hover {
+  border-color: var(--token-border-base);
+}
+
+.videoCardGrid.compact .slot.selected {
+  border-color: var(--token-accent-base);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--token-accent-base) 36%, transparent);
+}
+
+.videoCardGrid.compact .slot img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.videoCardGrid.compact .slot .videoPlaceholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--token-text-muted);
+  font-size: 22px;
+  background: var(--token-bg-elevated);
+}
+
+.videoCardGrid.compact .slot .selectedIcon {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  color: var(--token-accent-base);
+  font-size: 14px;
+  background: color-mix(in srgb, var(--token-bg-app) 60%, transparent);
+  border-radius: 50%;
+}
+
+.videoCardGrid.compact .slot .slotIndexBadge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  font-size: 10px;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--token-bg-app) 60%, transparent);
+  color: var(--token-text-secondary);
+  font-family: ui-monospace, monospace;
+  pointer-events: none;
+}
+
+.videoCardGrid.compact .slot .slotOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 2px;
+  padding: 4px;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--token-bg-app) 60%, transparent),
+    color-mix(in srgb, var(--token-bg-app) 8%, transparent) 50%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+.videoCardGrid.compact .slot:hover .slotOverlay {
+  opacity: 1;
+}
+
+.videoCardGrid.compact .slot .slotOverlay .overlayBtn {
+  pointer-events: auto;
+  width: 22px;
+  height: 22px;
+  min-width: 22px;
+  background: color-mix(in srgb, var(--token-bg-app) 50%, transparent);
+}
+
+.videoCardGrid.compact .slotEmpty {
+  border: 1px dashed var(--token-border-subtle);
+  background: color-mix(in srgb, var(--token-bg-elevated) 36%, transparent);
+}
+
+.videoCardGrid.compact .compactFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 0 2px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.videoCardGrid.compact .compactPager {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  color: var(--token-text-tertiary);
+}
+
+.videoCardGrid.compact .compactPager .pagerBtn {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  font-size: 10px;
+}
+
+.videoCardGrid.compact .compactPager .pagerText {
+  font-size: 11px;
+  font-family: ui-monospace, monospace;
+  min-width: 28px;
+  text-align: center;
+}
+
+.videoCardGrid.compact .compactActions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.videoCardGrid.compact .compactActions .actionBtn {
+  height: 22px;
+  padding: 0 6px;
+  font-size: 11px;
+}
+
+.videoCardGrid.compact .compactActions .actionBtn.primary {
+  color: var(--token-status-info);
+  font-weight: 500;
+}

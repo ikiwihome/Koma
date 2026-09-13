@@ -1,0 +1,67 @@
+.modal :global(.ant-modal-content) {
+  background-color: var(--token-bg-surface);
+}
+
+.modal :global(.ant-modal-header) {
+  background-color: var(--token-bg-surface);
+  border-bottom: 1px solid var(--token-bg-elevated);
+}
+
+.modal :global(.ant-modal-title) {
+  color: var(--token-text-primary);
+}
+
+.modal :global(.ant-modal-close-x) {
+  color: var(--token-text-secondary);
+}
+
+.header {
+  margin-bottom: 16px;
+}
+
+.address {
+  font-family: monospace;
+  font-size: 12px;
+  color: var(--token-text-secondary);
+}
+
+.form {
+  padding: 16px 0;
+}
+
+.formActions {
+  margin-bottom: 0;
+  text-align: right;
+}
+
+.statusSuccess {
+  color: var(--token-status-success);
+}
+
+.statusError {
+  color: var(--token-status-error);
+}
+
+/* 表格样式 */
+.modal :global(.ant-table) {
+  background: transparent;
+}
+
+.modal :global(.ant-table-thead > tr > th) {
+  background-color: var(--token-bg-elevated);
+  color: var(--token-text-secondary);
+  border-bottom: 1px solid var(--token-border-base);
+}
+
+.modal :global(.ant-table-tbody > tr > td) {
+  border-bottom: 1px solid var(--token-bg-elevated);
+  color: var(--token-text-primary);
+}
+
+.modal :global(.ant-table-tbody > tr:hover > td) {
+  background-color: var(--token-bg-elevated);
+}
+
+.modal :global(.ant-empty-description) {
+  color: var(--token-text-tertiary);
+}

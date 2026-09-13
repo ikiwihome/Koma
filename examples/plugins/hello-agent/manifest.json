@@ -1,0 +1,15 @@
+{
+  "id": "hello-agent",
+  "name": "翻译助手",
+  "version": "1.0.0",
+  "description": "示例 Agent 插件 - 提供多语言翻译能力",
+  "category": "agent",
+  "engine": { "minAppVersion": "1.0.0", "sdkVersion": "1.0.0" },
+  "scopes": ["agent:register"],
+  "entry": { "backend": "dist/index.js" },
+  "agentMeta": {
+    "capabilities": ["translation", "language"],
+    "systemPrompt": "你是一个专业翻译助手，擅长中英日韩多语言互译。翻译时保持原文的语气和风格。",
+    "temperature": 0.3
+  }
+}

@@ -1,0 +1,63 @@
+.root {
+  left: var(--transform-left);
+  top: var(--transform-top);
+  width: var(--transform-width);
+  height: var(--transform-height);
+  transform: rotate(var(--transform-rotation));
+  transform-origin: center center;
+}
+
+.handle {
+  position: absolute;
+  z-index: 10;
+  width: var(--transform-handle-size);
+  height: var(--transform-handle-size);
+  border: 2px solid var(--token-text-primary);
+  border-radius: 2px;
+  background: var(--token-status-info);
+}
+
+.handleNw {
+  top: var(--transform-handle-offset);
+  left: var(--transform-handle-offset);
+  cursor: nwse-resize;
+}
+
+.handleNe {
+  top: var(--transform-handle-offset);
+  right: var(--transform-handle-offset);
+  cursor: nesw-resize;
+}
+
+.handleSw {
+  bottom: var(--transform-handle-offset);
+  left: var(--transform-handle-offset);
+  cursor: nesw-resize;
+}
+
+.handleSe {
+  right: var(--transform-handle-offset);
+  bottom: var(--transform-handle-offset);
+  cursor: nwse-resize;
+}
+
+.rotateControl {
+  top: var(--transform-rotate-top);
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.rotateStem {
+  bottom: var(--transform-handle-size);
+  width: 2px;
+  height: var(--transform-rotate-offset);
+}
+
+.rotateHandle {
+  width: calc(var(--transform-handle-size) + 4px);
+  height: calc(var(--transform-handle-size) + 4px);
+  border: 2px solid var(--token-text-primary);
+  border-radius: 50%;
+  background: var(--token-status-info);
+  cursor: grab;
+}

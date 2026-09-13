@@ -1,0 +1,42 @@
+{
+  "name": "@komastudio/plugin-sdk",
+  "version": "1.1.0",
+  "description": "Koma 插件开发 SDK - 提供类型定义和全局变量声明",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run build",
+    "release": "node scripts/publish.js patch",
+    "release:minor": "node scripts/publish.js minor",
+    "release:major": "node scripts/publish.js major"
+  },
+  "keywords": [
+    "koma",
+    "plugin",
+    "sdk",
+    "typescript"
+  ],
+  "author": "Koma Team",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "rimraf": "^5.0.0",
+    "@types/react": "^19.2.10",
+    "antd": "^6.2.2",
+    "@ant-design/icons": "^6.1.0",
+    "react": "^19.2.4"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  }
+}

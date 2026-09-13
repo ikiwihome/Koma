@@ -1,0 +1,123 @@
+name: Release Plugin
+
+# 触发：plugin tag 形如 plugin-com.koma.style-pack-basic-1.0.2
+# 期望仓库结构（与本仓约定）：
+#   <repo>/plugins/<pluginId>/   含 manifest.json + plugin source
+# 流水线：build → sign → upload to Koma release → update registry & push back
+
+on:
+  push:
+    tags:
+      - 'plugin-*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install adm-zip
+        run: npm install adm-zip --no-save
+
+      - name: Parse tag
+        id: parse
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          # 去掉前缀 plugin-，剩余形如 <pluginId>-<version>
+          REST="${TAG#plugin-}"
+          # 版本号一定是最后一段（v?x.y.z[-pre]），用 sed 切
+          VERSION="$(echo "$REST" | sed -E 's/.*-([0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?)$/\1/')"
+          PLUGIN_ID="$(echo "$REST" | sed -E 's/-[0-9]+\.[0-9]+\.[0-9]+(-[A-Za-z0-9.]+)?$//')"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "plugin_id=$PLUGIN_ID" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Verify plugin dir exists
+        run: |
+          test -d "plugins/${{ steps.parse.outputs.plugin_id }}" || {
+            echo "expected plugins/${{ steps.parse.outputs.plugin_id }} not found"
+            exit 1
+          }
+
+      - name: Build plugin zip
+        id: zip
+        run: |
+          OUT="/tmp/${{ steps.parse.outputs.plugin_id }}-${{ steps.parse.outputs.version }}.zip"
+          (cd "plugins/${{ steps.parse.outputs.plugin_id }}" && zip -r "$OUT" . -x "*.bak" -x "node_modules/*")
+          echo "path=$OUT" >> $GITHUB_OUTPUT
+
+      - name: Sign plugin manifest (in zip)
+        env:
+          KOMA_UPDATE_SIGN_KEY: ${{ secrets.KOMA_UPDATE_SIGN_KEY }}
+        run: node scripts/sign-plugin-manifest.cjs --in "${{ steps.zip.outputs.path }}"
+
+      - name: Upload zip to Koma release
+        id: upload
+        uses: softprops/action-gh-release@v2
+        with:
+          repository: M-JYuan/Koma
+          token: ${{ secrets.GH_TOKEN }}
+          tag_name: ${{ steps.parse.outputs.tag }}
+          name: ${{ steps.parse.outputs.tag }}
+          draft: false
+          prerelease: false
+          files: ${{ steps.zip.outputs.path }}
+
+      - name: Checkout Koma main
+        uses: actions/checkout@v4
+        with:
+          repository: M-JYuan/Koma
+          token: ${{ secrets.GH_TOKEN }}
+          path: koma-build-repo
+          ref: main
+
+      - name: Read plugin metadata
+        id: meta
+        run: |
+          MANIFEST="plugins/${{ steps.parse.outputs.plugin_id }}/manifest.json"
+          NAME="$(node -e "console.log(require('./$MANIFEST').name || '${{ steps.parse.outputs.plugin_id }}')")"
+          CATEGORY="$(node -e "console.log(require('./$MANIFEST').category || '')")"
+          DESC="$(node -e "console.log(require('./$MANIFEST').description || '')")"
+          MIN="$(node -e "console.log((require('./$MANIFEST').engine||{}).minAppVersion||'')")"
+          MAX="$(node -e "console.log((require('./$MANIFEST').engine||{}).maxAppVersion||'')")"
+          API="$(node -e "console.log((require('./$MANIFEST').engine||{}).apiVersion||'v1')")"
+          echo "name=$NAME" >> $GITHUB_OUTPUT
+          echo "category=$CATEGORY" >> $GITHUB_OUTPUT
+          echo "description=$DESC" >> $GITHUB_OUTPUT
+          echo "min=$MIN" >> $GITHUB_OUTPUT
+          echo "max=$MAX" >> $GITHUB_OUTPUT
+          echo "api=$API" >> $GITHUB_OUTPUT
+
+      - name: Update plugin-registry.json
+        env:
+          REGISTRY_REPO_DIR: ${{ github.workspace }}/koma-build-repo
+          PLUGIN_ID: ${{ steps.parse.outputs.plugin_id }}
+          PLUGIN_VERSION: ${{ steps.parse.outputs.version }}
+          PLUGIN_NAME: ${{ steps.meta.outputs.name }}
+          PLUGIN_CATEGORY: ${{ steps.meta.outputs.category }}
+          PLUGIN_DESCRIPTION: ${{ steps.meta.outputs.description }}
+          PLUGIN_DOWNLOAD_URL: https://github.com/M-JYuan/Koma/releases/download/${{ steps.parse.outputs.tag }}/${{ steps.parse.outputs.plugin_id }}-${{ steps.parse.outputs.version }}.zip
+          PLUGIN_ZIP_PATH: ${{ steps.zip.outputs.path }}
+          PLUGIN_ENGINE_MIN: ${{ steps.meta.outputs.min }}
+          PLUGIN_ENGINE_MAX: ${{ steps.meta.outputs.max }}
+          PLUGIN_ENGINE_API: ${{ steps.meta.outputs.api }}
+          KOMA_UPDATE_SIGN_KEY: ${{ secrets.KOMA_UPDATE_SIGN_KEY }}
+        run: node scripts/update-plugin-registry.cjs
+
+      - name: Commit registry update
+        run: |
+          cd koma-build-repo
+          git config user.name "koma-release-bot"
+          git config user.email "release@koma.studio"
+          git add plugin-registry.json
+          git commit -m "registry: add ${{ steps.parse.outputs.plugin_id }}@${{ steps.parse.outputs.version }}" || echo "nothing to commit"
+          git push

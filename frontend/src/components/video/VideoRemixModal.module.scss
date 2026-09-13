@@ -1,0 +1,30 @@
+.intro {
+  margin-bottom: var(--token-space-lg);
+}
+
+.preview {
+  margin-bottom: var(--token-space-lg);
+}
+
+.previewVideo {
+  width: 100%;
+  max-height: 200px;
+  margin-top: var(--token-space-sm);
+  border-radius: var(--token-radius-base);
+}
+
+.formRow {
+  width: 100%;
+}
+
+.compactItem {
+  margin-bottom: 0;
+}
+
+.field {
+  width: 150px;
+}
+
+.progressBlock {
+  margin-top: var(--token-space-lg);
+}

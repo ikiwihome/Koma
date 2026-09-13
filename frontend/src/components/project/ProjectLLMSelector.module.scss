@@ -1,0 +1,25 @@
+.root {
+  width: 100%;
+}
+
+.defaultIcon {
+  color: var(--token-status-warning);
+}
+
+.providerTag {
+  font-size: 10px;
+}
+
+.deletedAlert {
+  margin-top: var(--token-space-sm);
+}
+
+.selectedMeta {
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--token-text-secondary);
+}
+
+.baseUrl {
+  max-width: 200px;
+}

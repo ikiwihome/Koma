@@ -1,0 +1,54 @@
+.avatarPlaceholder {
+  background: var(--token-bg-surface);
+}
+
+.root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--token-bg-app);
+}
+
+.tabs {
+  height: 100%;
+}
+
+.tabs :global(.ant-tabs-nav) {
+  margin: 0;
+  padding: 4px 4px 0;
+  background: var(--token-bg-surface);
+  border-bottom: 1px solid var(--token-border-subtle);
+}
+
+.tabs :global(.ant-tabs-content) {
+  height: calc(100% - 38px);
+}
+
+.tabs :global(.ant-tabs-tabpane) {
+  height: 100%;
+}
+
+.scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background: var(--token-border-base);
+  border-radius: 2px;
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--token-text-muted);
+}
+
+.emptyAssetIcon {
+  font-size: 24px;
+}
+
+.boundIcon {
+  font-size: 12px;
+}

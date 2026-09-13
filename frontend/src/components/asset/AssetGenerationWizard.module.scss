@@ -1,0 +1,71 @@
+.statusSuccess {
+  color: var(--token-status-success);
+}
+
+.statusError {
+  color: var(--token-status-error);
+}
+
+.statusInfo {
+  color: var(--token-status-info);
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  padding: var(--token-space-md) 0;
+  border-bottom: 1px solid var(--token-border-base);
+}
+
+.itemCheckbox {
+  margin-right: var(--token-space-md);
+}
+
+.itemContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.thumbnailFrame {
+  width: 60px;
+  height: 60px;
+  margin-left: var(--token-space-md);
+}
+
+.thumbnail {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--token-radius-sm);
+  object-fit: cover;
+}
+
+.retryButton {
+  margin-left: var(--token-space-sm);
+}
+
+.loadingState {
+  padding: 40px;
+  text-align: center;
+}
+
+.steps {
+  margin-bottom: var(--token-space-xl);
+}
+
+.progressCard {
+  margin-bottom: var(--token-space-lg);
+}
+
+.assetListBody {
+  max-height: 360px;
+  overflow: auto;
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.footerActions {
+  margin-top: var(--token-space-xl);
+  text-align: right;
+}

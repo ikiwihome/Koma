@@ -1,0 +1,150 @@
+/* 视频版本列表样式 */
+
+.videoVersionList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.versionHeader {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--token-text-tertiary);
+  font-size: 11px;
+}
+
+.versionTime {
+  font-size: 11px;
+}
+
+/* 版本网格 */
+.versionGrid {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.versionThumb {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--token-bg-card);
+  border: 1px solid var(--token-border-base);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--token-text-muted);
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.versionThumb:hover {
+  border-color: var(--token-accent-base);
+}
+
+.versionThumb.active {
+  border-color: var(--token-accent-base);
+  box-shadow: 0 0 0 1px var(--token-accent-base);
+}
+
+.versionThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.versionLabel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: color-mix(in srgb, var(--token-bg-app) 70%, transparent);
+  color: var(--token-text-primary);
+  font-size: 9px;
+  text-align: center;
+  padding: 1px 0;
+}
+
+.versionCheck {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  color: var(--token-accent-base);
+  font-size: 10px;
+  background: var(--token-bg-app);
+  border-radius: 50%;
+}
+
+.versionMenuCheck {
+  color: var(--token-status-success);
+}
+
+.versionMore {
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+  background: var(--token-bg-elevated);
+  border: 1px solid var(--token-border-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--token-text-secondary);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.versionMore:hover {
+  background: var(--token-bg-hover);
+  color: var(--token-text-primary);
+}
+
+/* 紧凑模式 */
+.versionCompact {
+  display: inline-flex;
+}
+
+.versionCompactTag {
+  margin: 0;
+  cursor: pointer;
+}
+
+.versionCompactTagCurrent {
+  border-color: color-mix(in srgb, var(--token-status-success) 45%, var(--token-border-base));
+  color: var(--token-status-success);
+  background: color-mix(in srgb, var(--token-status-success) 12%, transparent);
+}
+
+.versionCompactIcon {
+  font-size: 10px;
+}
+
+/* 生成按钮 */
+.generateBtn {
+  font-size: 11px !important;
+  padding: 0 4px !important;
+  height: 20px !important;
+  color: var(--token-text-tertiary) !important;
+}
+
+.generateBtn:hover {
+  color: var(--token-accent-base) !important;
+}
+
+/* 下拉菜单项 */
+.versionMenuItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 200px;
+  gap: 16px;
+}
+
+.videoVersionPreviewPlayer {
+  width: 100%;
+  max-height: 60vh;
+}

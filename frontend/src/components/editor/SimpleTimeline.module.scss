@@ -1,0 +1,122 @@
+.root {
+  background: var(--token-bg-surface);
+  border-top: 1px solid var(--token-border-subtle);
+}
+
+.toolbar {
+  min-width: 0;
+  background: var(--token-bg-surface);
+  border-bottom: 1px solid var(--token-border-subtle);
+}
+
+.scroller {
+  background: var(--token-bg-app);
+}
+
+.content {
+  min-width: var(--timeline-min-width);
+}
+
+.ruler {
+  height: var(--ruler-height);
+  background: color-mix(in srgb, var(--token-bg-app) 70%, var(--token-bg-surface));
+  border-bottom: 1px solid var(--token-border-subtle);
+}
+
+.rulerTrack,
+.trackLane {
+  width: var(--timeline-track-width);
+}
+
+.trackHeaderSpacer,
+.trackHeader {
+  background: var(--token-bg-surface);
+  border-right: 1px solid var(--token-border-subtle);
+}
+
+.trackRow {
+  height: var(--track-height);
+  border-bottom: 1px solid color-mix(in srgb, var(--token-border-subtle) 30%, transparent);
+}
+
+.marker {
+  left: var(--marker-left);
+}
+
+.waveformBar {
+  height: var(--waveform-height);
+}
+
+.filmFrame {
+  width: var(--film-frame-width);
+}
+
+.playheadHandlePosition {
+  left: var(--playhead-left);
+}
+
+.clipBlock {
+  left: var(--clip-left);
+  width: var(--clip-width);
+}
+
+.keyframeMarker {
+  left: var(--keyframe-left);
+}
+
+.keyframeIcon {
+  fill: var(--token-status-warning);
+  stroke: color-mix(in srgb, var(--token-status-warning) 75%, var(--token-bg-app));
+}
+
+.selectedKeyframeIcon {
+  fill: var(--token-status-info);
+  stroke: color-mix(in srgb, var(--token-status-info) 75%, var(--token-bg-app));
+}
+
+.playheadLine,
+.snapLine {
+  left: var(--line-left);
+  top: var(--line-top);
+  bottom: 0;
+  transform: translateX(-50%);
+}
+
+.playheadLine {
+  width: 1px;
+}
+
+.snapLine {
+  width: 2px;
+  background-size: 2px 8px;
+}
+
+.snapLinePlayhead {
+  background-image: linear-gradient(
+    to bottom,
+    var(--token-status-info),
+    var(--token-status-info) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+
+.snapLineClip {
+  background-image: linear-gradient(
+    to bottom,
+    var(--token-accent-base),
+    var(--token-accent-base) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+}
+
+.dragPreview {
+  left: var(--preview-left);
+  top: var(--preview-top);
+}
+
+.contextMenu {
+  left: var(--menu-left);
+  top: var(--menu-top);
+}

@@ -1,0 +1,135 @@
+/* 参考图选择器样式 */
+
+.refImagePicker {
+  position: relative;
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.refImagePickerSize-small {
+  width: 60px;
+  height: 34px;
+}
+
+.refImagePickerSize-default {
+  width: 80px;
+  height: 45px;
+}
+
+.refImagePickerSize-large {
+  width: 120px;
+  height: 68px;
+}
+
+.refImagePicker.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.refImagePicker.dragging {
+  border-color: var(--token-accent-base) !important;
+  background: color-mix(in srgb, var(--token-accent-base) 10%, transparent) !important;
+}
+
+/* 空状态 */
+.refImageEmpty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: var(--token-bg-card);
+  border: 1px dashed var(--token-border-base);
+  border-radius: 4px;
+  color: var(--token-text-tertiary);
+  font-size: 10px;
+  transition: all 0.2s;
+}
+
+.refImageEmpty:hover {
+  border-color: var(--token-accent-base);
+  color: var(--token-accent-base);
+  background: color-mix(in srgb, var(--token-accent-base) 5%, transparent);
+}
+
+.refImagePicker.dragging .refImageEmpty {
+  border-style: solid;
+  border-color: var(--token-accent-base);
+  color: var(--token-accent-base);
+}
+
+/* 预览状态 */
+.refImagePreview {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.refImagePreview .ant-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.refImagePreview img {
+  width: 100%;
+  height: 100%;
+  border-radius: 4px;
+}
+
+.refImage {
+  object-fit: cover;
+}
+
+.refImageMenuThumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 2px;
+  object-fit: cover;
+}
+
+.refImageUploadIcon {
+  font-size: 16px;
+}
+
+.refImageAddIcon {
+  font-size: 14px;
+}
+
+/* 悬浮遮罩 */
+.refImageOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  background: color-mix(in srgb, var(--token-bg-app) 60%, transparent);
+  opacity: 0;
+  transition: opacity 0.2s;
+  border-radius: 4px;
+}
+
+.refImagePreview:hover .refImageOverlay {
+  opacity: 1;
+}
+
+.overlayBtn {
+  color: var(--token-text-primary) !important;
+  padding: 2px !important;
+  width: 20px !important;
+  height: 20px !important;
+  min-width: 20px !important;
+}
+
+.overlayBtn:hover {
+  background: color-mix(in srgb, var(--token-text-primary) 20%, transparent) !important;
+}
+
+.overlayBtn.ant-btn-dangerous:hover {
+  color: var(--token-status-error) !important;
+}

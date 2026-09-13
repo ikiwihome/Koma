@@ -1,0 +1,32 @@
+# 开发依赖
+node_modules/
+src/
+*.ts
+*.tsx
+tsconfig.json
+
+# 构建工具配置
+.eslintrc*
+.prettierrc*
+.editorconfig
+
+# 版本控制
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# 测试
+__tests__/
+*.test.*
+*.spec.*
+coverage/
+
+# 其他
+*.log
+*.lock
+package-lock.json

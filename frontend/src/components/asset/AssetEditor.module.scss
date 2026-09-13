@@ -1,0 +1,89 @@
+.editorCard {
+  padding: var(--token-space-md);
+  border: 1px solid var(--token-border-subtle);
+  border-radius: var(--token-radius-lg);
+  background: var(--token-bg-card);
+}
+
+.editorHeader,
+.promptHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.editorHeader {
+  margin-bottom: var(--token-space-md);
+}
+
+.editorTitle {
+  font-size: 14px;
+}
+
+.progressBlock {
+  margin-bottom: var(--token-space-md);
+}
+
+.progressText {
+  font-size: 12px;
+}
+
+.previewFrame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: var(--token-space-md);
+  border-radius: var(--token-radius-base);
+  background: var(--token-bg-elevated);
+}
+
+.propPreviewFrame {
+  max-height: 150px;
+  aspect-ratio: 1 / 1;
+  background: var(--token-bg-surface);
+}
+
+.scenePreviewFrame {
+  aspect-ratio: 16 / 9;
+  background: var(--token-bg-app);
+}
+
+.propPreviewImage,
+.scenePreviewImage {
+  width: 100%;
+  height: 100%;
+}
+
+.propPreviewImage {
+  object-fit: contain;
+}
+
+.scenePreviewImage {
+  object-fit: cover;
+}
+
+.promptHeader {
+  margin-bottom: 6px;
+}
+
+.promptLabel {
+  font-size: 11px;
+}
+
+.promptInput {
+  border-color: var(--token-border-subtle);
+  background: var(--token-bg-card);
+  font-size: 12px;
+}
+
+.promptInputEditing {
+  border-color: var(--token-border-base);
+  background: var(--token-bg-app);
+}
+
+.promptHint {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+}

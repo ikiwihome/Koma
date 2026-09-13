@@ -1,0 +1,41 @@
+name: Theme Discipline
+
+on:
+  pull_request:
+    paths:
+      - 'frontend/src/**'
+      - 'frontend/scripts/check-style-discipline.ts'
+      - 'frontend/eslint.theme.config.cjs'
+      - 'frontend/eslint-plugin-koma-theme-discipline/**'
+      - 'frontend/stylelint.config.cjs'
+      - 'frontend/package.json'
+      - 'frontend/package-lock.json'
+      - 'docs/THEME_*.md'
+      - 'docs/INLINE_STYLE_EXCEPTIONS.md'
+  push:
+    branches:
+      - main
+      - feat/**
+      - codex/**
+
+jobs:
+  theme-discipline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run theme discipline checks
+        working-directory: frontend
+        run: npm run lint:theme

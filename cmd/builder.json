@@ -1,0 +1,63 @@
+{
+  "productName": "AI短剧生成工具",
+  "appId": "com.koma.studio",
+  "copyright": "© 2026 AI短剧生成工具",
+  "directories": {
+    "output": "out"
+  },
+  "asar": true,
+  "beforePack": "./scripts/prepare-distribution-credentials.cjs",
+  "asarUnpack": [
+    "resources/ffmpeg/**"
+  ],
+  "files": [
+    "**/*",
+    "!cmd/",
+    "!electron/",
+    "!frontend/",
+    "!logs/",
+    "!out/",
+    "!packages/",
+    "!openspec/",
+    "!resources/koma-hosting-defaults.local.json",
+    "!resources/agnes-defaults.local.json",
+    "public/dist/**/*",
+    "public/electron/**/*"
+  ],
+  "extraResources": {
+    "from": "build/extraResources/",
+    "to": "extraResources"
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowElevation": true,
+    "allowToChangeInstallationDirectory": true,
+    "installerIcon": "build/icons/icon.ico",
+    "uninstallerIcon": "build/icons/icon.ico",
+    "installerHeaderIcon": "build/icons/icon.ico",
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "AI短剧生成工具"
+  },
+  "publish": [
+    {
+      "provider": "github",
+      "owner": "M-JYuan",
+      "repo": "Koma",
+      "releaseType": "release"
+    }
+  ],
+  "win": {
+    "icon": "build/icons/icon.ico",
+    "artifactName": "${productName}-${os}-${version}-${arch}-setup.${ext}",
+    "target": [
+      {
+        "target": "portable"
+      }
+    ]
+  },
+  "portable": {
+    "artifactName": "${productName}-${os}-${version}-${arch}-portable.${ext}"
+  }
+}

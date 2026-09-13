@@ -1,0 +1,75 @@
+[
+  {
+    "id": "agnes-default-llm",
+    "category": "llm",
+    "providerType": "openai",
+    "name": "Agnes 文本",
+    "baseUrl": "https://api.agnes-ai.cn/v1",
+    "defaultModelId": "agnes-3.0-flash",
+    "providerConfig": {},
+    "models": [
+      {
+        "id": "agnes-3.0-flash",
+        "label": "Agnes 3.0 Flash",
+        "providerModelName": "agnes-3.0-flash",
+        "capabilities": [
+          "llm.chat"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "agnes-default-tti",
+    "category": "tti",
+    "providerType": "openai-compatible-tti",
+    "name": "Agnes 图片",
+    "baseUrl": "https://api.agnes-ai.cn",
+    "defaultModelId": "agnes-image-2.5-flash",
+    "providerConfig": {
+      "defaultSize": "1K",
+      "promptProtocol": "grok-image-index"
+    },
+    "models": [
+      {
+        "id": "agnes-image-2.5-flash",
+        "label": "Agnes Image 2.5 Flash",
+        "providerModelName": "agnes-image-2.5-flash",
+        "capabilities": [
+          "image.text-to-image",
+          "image.image-to-image"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "agnes-default-itv",
+    "category": "itv",
+    "providerType": "openai-video",
+    "name": "Agnes 视频",
+    "baseUrl": "https://api.agnes-ai.cn",
+    "defaultModelId": "agnes-video-2.5-flash",
+    "providerConfig": {
+      "defaultDuration": 5,
+      "defaultResolution": "720P",
+      "promptProtocol": "grok-image-index"
+    },
+    "models": [
+      {
+        "id": "agnes-video-2.5-flash",
+        "label": "Agnes Video 2.5 Flash",
+        "providerModelName": "agnes-video-2.5-flash",
+        "capabilities": [
+          "video.text-to-video",
+          "video.image-to-video",
+          "video.reference-to-video",
+          "video.start-end-to-video"
+        ],
+        "defaults": {
+          "durationMin": 4,
+          "durationMax": 12,
+          "durationStep": 1
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,60 @@
+.container {
+  flex: 1;
+  min-height: var(--chat-prompt-editor-min-height);
+}
+
+.refChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 2px;
+  padding: 2px 8px 2px 2px;
+  vertical-align: middle;
+  border: 1px solid color-mix(in srgb, var(--token-status-info) 40%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--token-status-info) 12%, transparent);
+  color: color-mix(in srgb, var(--token-status-info) 68%, var(--token-text-primary));
+  font-size: 12px;
+  line-height: 1.5;
+  cursor: default;
+}
+
+.refChipImage {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.refTooltip {
+  position: fixed;
+  z-index: 100002;
+  pointer-events: none;
+  padding: 6px;
+  border: 1px solid var(--token-border-base);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--token-bg-card) 96%, transparent);
+  box-shadow: var(--token-shadow-md);
+}
+
+.refTooltipImage {
+  display: block;
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 6px;
+}
+
+.completionInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+}
+
+.completionInfoImage {
+  width: 80px;
+  height: 80px;
+  border-radius: 6px;
+  object-fit: cover;
+}

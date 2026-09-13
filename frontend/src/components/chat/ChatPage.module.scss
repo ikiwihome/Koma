@@ -1,0 +1,71 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: var(--token-bg-surface);
+}
+
+.loadingContainer {
+  align-items: center;
+  justify-content: center;
+}
+
+.readySpinner {
+  margin-left: 8px;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--token-bg-elevated);
+  background-color: var(--token-bg-app);
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chatArea {
+  flex: 1;
+  overflow: hidden;
+  min-height: 0;
+}
+
+.inputArea {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border-top: 1px solid var(--token-bg-elevated);
+  background-color: var(--token-bg-app);
+}
+
+.input {
+  flex: 1;
+  background-color: var(--token-bg-elevated) !important;
+  border-color: var(--token-border-base) !important;
+  color: var(--token-text-primary) !important;
+}
+
+.input::placeholder {
+  color: var(--token-text-tertiary) !important;
+}
+
+.input:focus {
+  border-color: var(--token-accent-base) !important;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--token-accent-base) 10%, transparent) !important;
+}
+
+.inputActions {
+  display: flex;
+  align-items: flex-end;
+}

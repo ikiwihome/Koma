@@ -1,0 +1,74 @@
+.stats {
+  margin-bottom: var(--token-space-lg);
+  padding: var(--token-space-md);
+  border-radius: var(--token-radius-lg);
+  background: var(--token-bg-elevated);
+}
+
+.reuseText {
+  color: var(--token-status-success);
+}
+
+.createText {
+  color: var(--token-status-warning);
+}
+
+.matchList {
+  max-height: 400px;
+  overflow: auto;
+  border: 1px solid var(--token-border-base);
+  border-radius: var(--token-radius-lg);
+}
+
+.matchItem {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--token-border-base);
+}
+
+.matchItem:last-child {
+  border-bottom: 0;
+}
+
+.matchHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--token-space-sm);
+}
+
+.candidateDescription {
+  margin-bottom: var(--token-space-sm);
+  font-size: 12px;
+}
+
+.manualLinkBlock {
+  margin-top: var(--token-space-sm);
+}
+
+.manualLinkLabel {
+  font-size: 12px;
+}
+
+.manualLinkTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.clickableTag {
+  cursor: pointer;
+}
+
+.confidenceHigh,
+.linkedTag {
+  border-color: color-mix(in srgb, var(--token-status-success) 45%, var(--token-border-base));
+  color: var(--token-status-success);
+  background: color-mix(in srgb, var(--token-status-success) 12%, transparent);
+}
+
+.confidenceMedium {
+  border-color: color-mix(in srgb, var(--token-status-warning) 45%, var(--token-border-base));
+  color: var(--token-status-warning);
+  background: color-mix(in srgb, var(--token-status-warning) 12%, transparent);
+}

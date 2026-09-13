@@ -1,0 +1,237 @@
+name: Build & Release
+
+# 手动触发：在 Actions 页面填 version (e.g. v1.0.0) + source_ref (默认 main)
+# 流水线会 checkout 本仓 → npm install → 三平台打包 → 签名 → 发 Release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g. v1.0.0)'
+        required: true
+        type: string
+      source_ref:
+        description: 'Source branch or tag to build from'
+        required: false
+        default: 'main'
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.vars.outputs.version }}
+      semver: ${{ steps.vars.outputs.semver }}
+      source_ref: ${{ steps.vars.outputs.source_ref }}
+    steps:
+      - name: Resolve version and source ref
+        id: vars
+        run: |
+          VERSION="${{ inputs.version }}"
+          SOURCE_REF="${{ inputs.source_ref }}"
+          SEMVER="${VERSION#v}"
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "semver=${SEMVER}" >> "$GITHUB_OUTPUT"
+          echo "source_ref=${SOURCE_REF}" >> "$GITHUB_OUTPUT"
+          echo "Version: ${VERSION}, Semver: ${SEMVER}, Source ref: ${SOURCE_REF}"
+
+  build-windows:
+    needs: [prepare]
+    runs-on: windows-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.source_ref }}
+
+      - name: Inject version into source
+        run: |
+          npm version ${{ needs.prepare.outputs.semver }} --no-git-tag-version --allow-same-version
+          cd frontend
+          npm version ${{ needs.prepare.outputs.semver }} --no-git-tag-version --allow-same-version
+        shell: bash
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Remove China mirror config
+        run: del .npmrc
+        shell: cmd
+
+      - name: Install dependencies
+        run: npm run install:all
+
+      - name: Build application
+        run: npm run build
+
+      - name: Build Windows NSIS installer
+        run: npm run build-w
+
+      - name: Build Windows portable
+        run: npm run build-we
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-artifacts
+          if-no-files-found: error
+          path: |
+            out/*.exe
+            out/*.blockmap
+            out/latest*.yml
+
+  build-macos:
+    needs: [prepare]
+    runs-on: macos-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.source_ref }}
+
+      - name: Inject version into source
+        run: |
+          npm version ${{ needs.prepare.outputs.semver }} --no-git-tag-version --allow-same-version
+          cd frontend
+          npm version ${{ needs.prepare.outputs.semver }} --no-git-tag-version --allow-same-version
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Remove China mirror config
+        run: rm -f .npmrc
+
+      - name: Install dependencies
+        run: npm run install:all
+
+      - name: Install dmg-license
+        run: npm install dmg-license
+
+      - name: Build application
+        run: npm run build
+
+      - name: Build macOS (x64)
+        run: npm run build-m
+
+      - name: Build macOS (ARM64)
+        run: npm run build-m-arm64
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos-artifacts
+          if-no-files-found: error
+          path: |
+            out/*.dmg
+            out/*.zip
+            out/*.blockmap
+            out/latest*.yml
+
+  build-linux:
+    needs: [prepare]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.source_ref }}
+
+      - name: Inject version into source
+        run: |
+          npm version ${{ needs.prepare.outputs.semver }} --no-git-tag-version --allow-same-version
+          cd frontend
+          npm version ${{ needs.prepare.outputs.semver }} --no-git-tag-version --allow-same-version
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Remove China mirror config
+        run: rm -f .npmrc
+
+      - name: Install dependencies
+        run: npm run install:all
+
+      - name: Build application
+        run: npm run build
+
+      - name: Build Linux AppImage
+        run: npm run build-l
+
+      - name: List Linux build outputs
+        run: find source/out -type f | sort
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-artifacts
+          if-no-files-found: error
+          path: |
+            out/*.AppImage
+            out/*.blockmap
+            out/latest*.yml
+
+  release:
+    needs: [prepare, build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      # 只需要 checkout 拿签名脚本（纯 Node 标准库，无依赖）
+      - name: Checkout source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.source_ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-artifacts
+          path: artifacts
+
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: macos-artifacts
+          path: artifacts
+
+      - name: Download Linux artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-artifacts
+          path: artifacts
+
+      - name: List release files
+        run: find artifacts -type f | sort
+
+      # 签名脚本生成 koma-update-manifest.json + .sig（ed25519，纯 Node 标准库）
+      - name: Sign update manifest (ed25519)
+        env:
+          ASSETS_DIR: ${{ github.workspace }}/artifacts
+          APP_VERSION: ${{ needs.prepare.outputs.semver }}
+          CHANNEL: stable
+          KOMA_UPDATE_SIGN_KEY: ${{ secrets.KOMA_UPDATE_SIGN_KEY }}
+        run: node scripts/sign-update-manifest.cjs
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.prepare.outputs.version }}
+          name: ${{ needs.prepare.outputs.version }}
+          draft: false
+          generate_release_notes: false
+          body: |
+            ## Koma ${{ needs.prepare.outputs.version }}
+
+            Built from source ref: `${{ needs.prepare.outputs.source_ref }}`
+          files: artifacts/*

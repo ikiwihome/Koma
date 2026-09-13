@@ -1,0 +1,41 @@
+{
+  "productName": "Koma Studio",
+  "appId": "com.koma.studio",
+  "copyright": "© 2026 Koma Studio",
+  "directories": {
+    "output": "out"
+  },
+  "asar": true,
+  "asarUnpack": [
+    "resources/ffmpeg/**"
+  ],
+  "files": [
+    "**/*",
+    "!cmd/",
+    "!electron/",
+    "!frontend/",
+    "!logs/",
+    "!out/",
+    "!packages/",
+    "!openspec/"
+  ],
+  "extraResources": [
+    {
+      "from": "build/extraResources",
+      "to": "extraResources"
+    }
+  ],
+  "publish": [
+    {
+      "provider": "github",
+      "owner": "M-JYuan",
+      "repo": "Koma",
+      "releaseType": "release"
+    }
+  ],
+  "mac": {
+    "artifactName": "${productName}-${os}-${version}-${arch}.${ext}",
+    "darkModeSupport": true,
+    "hardenedRuntime": false
+  }
+}

@@ -1,0 +1,83 @@
+.progressContainer {
+  padding: 24px;
+  text-align: center;
+}
+
+.progressMessage {
+  margin-top: var(--token-space-md);
+  color: var(--token-text-primary);
+}
+
+.progressDetail {
+  color: var(--token-text-tertiary);
+  font-size: 12px;
+}
+
+.cancelButton {
+  margin-top: var(--token-space-lg);
+}
+
+.typeSelector {
+  margin-bottom: 20px;
+}
+
+.exportPane {
+  display: var(--export-pane-display);
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.fpsSelect {
+  width: 130px;
+}
+
+.formatSelect {
+  width: 150px;
+}
+
+.qualitySelect {
+  width: 200px;
+}
+
+.flexInput {
+  flex: 1;
+}
+
+.compatList {
+  margin: 4px 0;
+  padding-left: 20px;
+}
+
+.compatHint,
+.warningBlock {
+  margin-top: var(--token-space-sm);
+}
+
+.compatAlert {
+  margin-bottom: var(--token-space-lg);
+}
+
+.infoBox {
+  margin-bottom: var(--token-space-lg);
+  padding: var(--token-space-md) var(--token-space-lg);
+  border-radius: var(--token-radius-base);
+  background: var(--token-bg-elevated);
+  color: var(--token-text-secondary);
+  font-size: 12px;
+}
+
+.successText {
+  color: var(--token-status-success);
+}
+
+.warningBlock {
+  color: var(--token-status-warning);
+}
+
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: var(--token-space-lg);
+}

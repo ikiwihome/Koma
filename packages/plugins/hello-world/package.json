@@ -1,0 +1,18 @@
+{
+  "name": "koma-plugin-hello-world",
+  "version": "1.0.0",
+  "description": "Koma Plugin Example - Hello World",
+  "main": "dist/ui/main.js",
+  "scripts": {
+    "build": "esbuild src/index.tsx --bundle --format=iife --global-name=__KOMA_PLUGIN_com_koma_hello_world__ --outfile=dist/ui/main.js --external:react --external:antd"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "antd": "^5.0.0"
+  },
+  "devDependencies": {
+    "@komastudio/plugin-sdk": "^1.0.3",
+    "esbuild": "^0.19.0",
+    "typescript": "^5.0.0"
+  }
+}

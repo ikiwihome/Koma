@@ -1,0 +1,51 @@
+.rootCard {
+  height: 100%;
+}
+
+.editorFill {
+  height: 100%;
+}
+
+.emptyHistory {
+  padding: 40px;
+  color: var(--token-text-muted);
+  text-align: center;
+}
+
+.versionList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--token-space-sm);
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.versionItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.versionTime {
+  font-weight: 500;
+}
+
+.versionDescription {
+  max-width: 400px;
+}
+
+.formBlock {
+  margin-bottom: var(--token-space-lg);
+}
+
+.formLabel {
+  margin-bottom: var(--token-space-sm);
+}
+
+.styleInput {
+  width: 120px;
+}
+
+.durationInput {
+  width: 80px;
+}

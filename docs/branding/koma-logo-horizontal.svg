@@ -1,0 +1,42 @@
+<svg width="1600" height="480" viewBox="0 0 1600 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="clapper" x1="148" y1="116" x2="472" y2="430" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8D57FF"/>
+      <stop offset="1" stop-color="#23D3FF"/>
+    </linearGradient>
+    <linearGradient id="body" x1="170" y1="208" x2="498" y2="458" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1B2544"/>
+      <stop offset="1" stop-color="#11182E"/>
+    </linearGradient>
+    <linearGradient id="letter" x1="226" y1="222" x2="426" y2="420" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#D5E9FF"/>
+    </linearGradient>
+    <linearGradient id="text" x1="600" y1="144" x2="1380" y2="366" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7F9FF"/>
+      <stop offset="1" stop-color="#D6E4FF"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="480" rx="48" fill="#090D18"/>
+
+  <g transform="translate(40 20)">
+    <rect x="56" y="56" width="440" height="440" rx="108" fill="#11172C"/>
+    <g transform="translate(0 8)">
+      <rect x="150" y="170" width="240" height="56" rx="14" transform="rotate(-10 150 170)" fill="url(#clapper)"/>
+      <path d="M166 162L205 155" stroke="#D8C4FF" stroke-width="10" stroke-linecap="round"/>
+      <path d="M226 151L265 144" stroke="#D8C4FF" stroke-width="10" stroke-linecap="round"/>
+      <path d="M286 141L325 134" stroke="#D8C4FF" stroke-width="10" stroke-linecap="round"/>
+      <path d="M346 130L377 124" stroke="#D8C4FF" stroke-width="10" stroke-linecap="round"/>
+
+      <rect x="138" y="210" width="264" height="194" rx="28" fill="url(#body)" stroke="url(#clapper)" stroke-width="12"/>
+
+      <path d="M197 250C197 243.373 202.373 238 209 238H239C245.627 238 251 243.373 251 250V301L309.813 241.156C312.062 238.867 315.139 237.577 318.348 237.577H352.786C363.433 237.577 368.824 250.508 361.406 258.145L314.592 306.349L366.633 362.575C372.878 369.323 368.09 380.25 358.896 380.25H325.727C322.695 380.25 319.813 378.93 317.842 376.636L275.51 327.365L251 352.31V370C251 376.627 245.627 382 239 382H209C202.373 382 197 376.627 197 370V250Z" fill="url(#letter)"/>
+    </g>
+
+    <path d="M401 119L411 142L434 152L411 162L401 185L391 162L368 152L391 142L401 119Z" fill="#FFB547"/>
+  </g>
+
+  <path d="M625.84 368V112H680.4V210.56L778.96 112H847.76L737.68 225.44L859.28 368H789.04L698.24 261.68L680.4 279.52V368H625.84ZM897.121 368V112H1090V155.2H951.541V216.08H1068.76V259.28H951.541V324.8H1093.6V368H897.121ZM1141.96 368V112H1196.52V324.8H1310.86V368H1141.96ZM1350.36 368V112H1404.92V368H1350.36Z" fill="url(#text)"/>
+  <path d="M626 88H1404" stroke="url(#clapper)" stroke-width="8" stroke-linecap="round" opacity="0.8"/>
+</svg>

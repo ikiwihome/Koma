@@ -1,0 +1,34 @@
+{
+  "id": "com.koma.hello-world",
+  "name": "Hello World",
+  "version": "1.0.0",
+  "description": "Koma 插件系统示例 - 展示基本的全局插件开发",
+  "author": {
+    "name": "Koma Team",
+    "url": "https://github.com/koma-studio"
+  },
+
+  "category": "global",
+  "engine": {
+    "minAppVersion": "1.0.0",
+    "sdkVersion": "1.0.0"
+  },
+
+  "scopes": [
+    "settings:read",
+    "storage:limited"
+  ],
+
+  "entry": {
+    "frontend": "./dist/ui/main.js"
+  },
+
+  "globalMeta": {
+    "entryRoute": "/plugins/com.koma.hello-world",
+    "navigation": {
+      "icon": "SmileOutlined",
+      "label": "Hello World",
+      "order": 100
+    }
+  }
+}

@@ -1,0 +1,9 @@
+.cutPoint {
+  left: var(--transition-cut-left);
+}
+
+.region {
+  left: var(--transition-region-left);
+  width: var(--transition-region-width);
+  min-width: 2px;
+}

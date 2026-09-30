@@ -30,7 +30,7 @@ vi.mock('react-i18next', () => ({
         'asset.characterDirectionCardTitle': `Character direction ${current}/${total}`,
         'asset.previewImage': 'Preview',
         'asset.drawImageCandidates': 'Generating 9 image candidates...',
-        'asset.drawCharacterDirections': 'Drawing 9 character directions...',
+        'asset.drawCharacterDirections': 'Drawing 4 character directions...',
         'asset.noImageCandidates': 'No image candidates',
         'asset.redrawCandidates': 'Redraw 9 candidates',
         'asset.useSelectedImage': 'Use selected image',

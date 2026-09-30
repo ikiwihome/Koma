@@ -3,7 +3,7 @@
  * 支持视频导出和草稿导出（剪映等）
  */
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import { Modal, Form, Select, InputNumber, Input, Button, Progress, Space, Radio, Segmented, Checkbox, Alert, App } from 'antd';
+import { Modal, Form, Select, InputNumber, Input, Button, Progress, Space, Radio, Segmented, Checkbox, Alert, App, Typography } from 'antd';
 import { ExportOutlined, FolderOutlined, WarningOutlined } from '@ant-design/icons';
 import { Track } from '../../types/editor';
 import { SimpleExportRenderer, SimpleExportConfig, SimpleExportProgress } from '../../services/simpleExportRenderer';
@@ -199,10 +199,20 @@ export function SimpleExportDialog({ open, onClose, tracks, duration, canvasSize
       onClose();
     } catch (err) {
       if ((err as Error).message !== 'Export aborted') {
+        const detail = err instanceof Error ? err.message : String(err);
         logger.error('视频导出失败', err);
         modal.error({
           title: '导出失败',
-          content: '视频导出过程中出现错误，请检查输出路径和磁盘空间后重试',
+          // 把真实失败原因（例如 FFmpeg 不可用 / FFmpeg 的 stderr 末尾）暴露出来。
+          // 之前的固定文案会把「FFmpeg 压根跑不起来」误导成「输出路径或磁盘空间有问题」。
+          content: (
+            <div>
+              <div>视频导出过程中出现错误，未生成输出文件，请检查输出路径和磁盘空间后重试。</div>
+              <Typography.Text type="danger" style={{ display: 'block', marginTop: 8, whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                {detail}
+              </Typography.Text>
+            </div>
+          ),
         });
       }
     } finally {

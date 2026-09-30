@@ -10,6 +10,9 @@ const { Text } = Typography;
 
 export const IMAGE_DRAW_CANDIDATE_COUNT = 9;
 
+/** 角色方向抽卡次数（场景 / 道具仍为 IMAGE_DRAW_CANDIDATE_COUNT）。 */
+export const CHARACTER_IMAGE_DRAW_CANDIDATE_COUNT = 4;
+
 export type AssetImageDrawOwnerType = Extract<MediaOwnerRef['ownerType'], 'character' | 'scene' | 'prop'>;
 
 export interface AssetImageDrawIdentitySpec {
@@ -32,7 +35,7 @@ export interface AssetImageDrawVariation {
 
 const CHARACTER_FACE_DIVERSITY_PROMPT = [
   'Character identity direction candidate: this image is one selectable identity direction for the same character brief, not the final costume sheet.',
-  'Across the 9 candidates, intentionally explore clearly different human identity directions; candidates must not share the same face design or silhouette.',
+  `Across the ${CHARACTER_IMAGE_DRAW_CANDIDATE_COUNT} candidates, intentionally explore clearly different human identity directions; candidates must not share the same face design or silhouette.`,
   'Keep the exact same story role, occupation/profession, structured gender and age lock, costume category cues, world setting and project art style.',
   'Only vary identity-level facial design: face shape, eye shape, brow/nose/mouth proportions, jaw and chin, apparent-age nuance, personality temperament, hairline, hair mass and hairstyle silhouette; soft, delicate, gentle, refined, elegant, flowing-hair or similar aesthetic words must be interpreted only within the locked gender and age class.',
   'Do not change the profession, social function, outfit type, prop set, species, body type, or story identity category. Do not create a three-view turnaround, full-body model sheet, or front/side/back layout.',

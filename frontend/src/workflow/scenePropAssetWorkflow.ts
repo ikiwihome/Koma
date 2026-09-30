@@ -160,7 +160,7 @@ export async function generateSceneImage(
     const prompt = appendStyleAnchorGuard(basePrompt, Boolean(styleAnchorAsset));
     const references = styleAnchorAsset ? [styleAnchorAsset] : [];
 
-    onProgress?.(10, '调用 TTI 服务...');
+    onProgress?.(10, '调用 文生图 服务...');
 
     // 打印完整提示词日志
     logTTICall(
@@ -189,7 +189,7 @@ export async function generateSceneImage(
       targetName: `场景: ${scene.name}`,
       type: 'asset-generation',
       execute: async (ctx) => {
-        ctx.progress(10, '调用 TTI 服务...');
+        ctx.progress(10, '调用 文生图 服务...');
         const a = await mediaGenerationService.generateImage({
           projectId,
           ownerRef: {
@@ -334,7 +334,7 @@ export async function generatePropImage(
     const prompt = appendStyleAnchorGuard(basePrompt, Boolean(styleAnchorAsset));
     const references = styleAnchorAsset ? [styleAnchorAsset] : [];
 
-    onProgress?.(10, '调用 TTI 服务...');
+    onProgress?.(10, '调用 文生图 服务...');
 
     // 打印完整提示词日志
     logTTICall(
@@ -363,7 +363,7 @@ export async function generatePropImage(
       targetName: `道具: ${prop.name}`,
       type: 'asset-generation',
       execute: async (ctx) => {
-        ctx.progress(10, '调用 TTI 服务...');
+        ctx.progress(10, '调用 文生图 服务...');
         const a = await mediaGenerationService.generateImage({
           projectId,
           ownerRef: {

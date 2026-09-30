@@ -363,7 +363,7 @@ export async function generateCostumePhoto(
       ...(faceReference ? [faceReference] : []),
     ];
 
-    onProgress?.(10, '调用 TTI 服务...');
+    onProgress?.(10, '调用 文生图 服务...');
 
     // 打印完整提示词日志
     logTTICall(
@@ -394,7 +394,7 @@ export async function generateCostumePhoto(
       targetName: `${character.name} 定妆照`,
       type: 'asset-generation',
       execute: async (ctx) => {
-        ctx.progress(10, '调用 TTI 服务...');
+        ctx.progress(10, '调用 文生图 服务...');
         const a = await mediaGenerationService.generateImage({
           projectId,
           ownerRef: {
@@ -453,7 +453,7 @@ export async function generateCharacterFaceCandidate(
     const prompt = appendStyleAnchorGuard(basePrompt, Boolean(styleAnchorAsset));
     const references = styleAnchorAsset ? [styleAnchorAsset] : [];
 
-    onProgress?.(10, '调用 TTI 服务...');
+    onProgress?.(10, '调用 文生图 服务...');
 
     logTTICall(
       'TTI',
@@ -480,7 +480,7 @@ export async function generateCharacterFaceCandidate(
       targetName: `${character.name} 人脸抽卡`,
       type: 'asset-generation',
       execute: async (ctx) => {
-        ctx.progress(10, '调用 TTI 服务...');
+        ctx.progress(10, '调用 文生图 服务...');
         const a = await mediaGenerationService.generateImage({
           projectId,
           ownerRef: {
@@ -565,7 +565,7 @@ export async function generateCharacterFaceCandidatesBatch(
     const prompt = appendStyleAnchorGuard(basePrompt, Boolean(styleAnchorAsset));
     const batchReferences = styleAnchorAsset ? [styleAnchorAsset] : [];
 
-    onProgress?.(10, '调用 TTI 服务...');
+    onProgress?.(10, '调用 文生图 服务...');
 
     logTTICall(
       'TTI',
@@ -593,7 +593,7 @@ export async function generateCharacterFaceCandidatesBatch(
       type: 'asset-generation',
       metadata: { batchCount: resolvedBatchCount },
       execute: async (ctx) => {
-        ctx.progress(10, '调用 TTI 服务...');
+        ctx.progress(10, '调用 文生图 服务...');
         const a = await mediaGenerationService.generateImages({
           projectId,
           ownerRef: {

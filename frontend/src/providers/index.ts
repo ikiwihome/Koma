@@ -259,8 +259,8 @@ export function createTTIProviderFromConfig(config: TTIModelConfig): TTIProvider
 }
 
 export function createTTSProviderFromConfig(config: TTSModelConfig): TTSProvider {
-  // 传完整 config —— 必须保留 profileId（= channelId），否则 Koma 激活渠道走
-  // 主进程代理鉴权拿不到密文 apiKey，会卡在 "Koma 激活 Key 未配置"。
+  // 传完整 config —— 必须保留 profileId（= channelId），否则 Koma 渠道走
+  // 主进程代理鉴权拿不到密文 apiKey，会卡在 "Koma TTS 渠道 API Key 未配置"。
   // 与 createTTIProviderFromConfig 行为对齐。
   return createTTSProvider(config);
 }

@@ -302,7 +302,7 @@ export const TTSConfigManager: React.FC<TTSConfigManagerProps> = ({ onConfigChan
   const handleTestConnection = useCallback(async (config: typeof configs[number]) => {
     setTestingId(config.channel.id);
     try {
-      // 必须传完整 resolvedConfig（含 profileId / modelName） — Koma 激活渠道的 apiKey
+      // 必须传完整 resolvedConfig（含 profileId / modelName） — Koma 渠道的 apiKey
       // 是加密在 settings.db 里的，前端 resolvedConfig.apiKey 为空，鉴权要靠 profileId
       // (= channelId) 走主进程代理。同时 modelName 是 validate 必填，缺了会卡在
       // "配置验证失败"。与 ITVConfigManager 行为对齐。

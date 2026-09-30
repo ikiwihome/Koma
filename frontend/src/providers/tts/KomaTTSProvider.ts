@@ -6,7 +6,7 @@
  *
  * 接入示意：
  *   curl -X POST https://komaapi.com/v1/audio/speech \
- *     -H "Authorization: Bearer <激活 Key>" \
+ *     -H "Authorization: Bearer <Koma API Key>" \
  *     -H "Content-Type: application/json" \
  *     -d '{"model":"qwen-tts","voice":"cherry","input":"通过 Koma 中转测试"}' \
  *     --output via-koma.wav
@@ -59,7 +59,7 @@ export class KomaTTSProvider implements TTSProvider {
   async start(request: TTSRequest): Promise<ProviderStartResult<AudioResult>> {
     const { text, voiceId, options } = request;
     if (!this.config.profileId && !this.config.apiKey) {
-      throw new Error('Koma 激活 Key 未配置');
+      throw new Error('Koma TTS 渠道 API Key 未配置');
     }
     const trimmedText = String(text || '').trim();
     if (!trimmedText) {

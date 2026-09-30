@@ -22,14 +22,10 @@ export function initializeAgnesDefaults(): void {
     for (const config of configs) {
       if (!getChannelConfig(config.id!)) {
         createChannelConfig({ ...config, source: 'builtin', enabled: true,
-          providerConfig: { ...config.providerConfig, apiKey, managedBy: 'agnes-activation' } });
+          providerConfig: { ...config.providerConfig, apiKey } });
       }
       setMediaDefault(config.category, config.id!, config.defaultModelId);
     }
-    const now = Date.now();
-    kv.set('agnes-activation', JSON.stringify({ activatedAt: now, lastValidatedAt: now,
-      maskedKey: `${apiKey.slice(0, 6)}...${apiKey.slice(-4)}`,
-      defaultChannelIds: { llm: 'agnes-default-llm', tti: 'agnes-default-tti', itv: 'agnes-default-itv' } }));
     kv.set('agnes-defaults-v1', 'true');
   });
 }

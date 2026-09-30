@@ -2,7 +2,7 @@
   "id": "com.koma.qiniu-image-hosting",
   "name": "七牛云图床（内置）",
   "version": "1.0.0",
-  "description": "七牛云图床服务（内置，使用激活 Key 调用 Koma 官方上传接口 komaapi.com），返回七牛云 Kodo 外链并支持时间戳防盗链，作为默认图床",
+  "description": "七牛云图床服务（内置，使用配置的 Koma 图床 API Key 调用官方上传接口 komaapi.com），返回七牛云 Kodo 外链并支持时间戳防盗链，作为默认图床",
   "author": {
     "name": "Koma Team",
     "url": "https://github.com/koma-studio"

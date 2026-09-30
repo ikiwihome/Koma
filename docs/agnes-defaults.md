@@ -15,7 +15,7 @@ Electron 首次启动读取 `AGNES_API_KEY` 环境变量，或本机构建文件
 前端不包含默认密钥。其他机器从源码构建时需要自行提供该文件或环境变量。
 
 初始化标记为 `agnes-defaults-v1`，仅初始化一次，不会在重启时覆盖用户后续修改。
-Agnes 激活信息单独保存于 `agnes-activation`；原 Koma 激活信息、图床渠道和图床默认选择均保留。
+图床渠道和图床默认选择由 `koma-hosting-defaults-v1` 独立初始化。
 
 默认 Koma 图床 Key 由 Electron 读取 `KOMA_IMAGE_HOSTING_API_KEY`，或
 `resources/koma-hosting-defaults.local.json`（同样使用 `{"apiKey":"..."}` 格式）。

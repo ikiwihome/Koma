@@ -44,7 +44,7 @@ function registerBuiltinProviders() {
       type: 'koma-suihe-itv',
       kind: 'itv',
       name: 'Koma 即梦',
-      description: 'Koma 官方激活通道下的即梦视频生成（seedance-2.5）。'
+      description: 'Koma 官方渠道下的即梦视频生成（seedance-2.5）。'
         + '客户端发 OpenAI 标准视频 API JSON + Koma 即梦协议占位符（@image_file_N / '
         + '@video_file_N / @audio_file_N），由 komaapi.com 网关转成上游 multipart。',
       factory: (config) => new SuiheITVProvider(config as ITVConfig),

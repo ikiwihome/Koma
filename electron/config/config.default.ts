@@ -7,7 +7,7 @@ const config: () => AppConfig = () => {
     openDevTools: false,
     singleLock: true,
     windowsOption: {
-      title: 'AI短剧生成工具',
+      title: 'Koma Studio',
       width: 1400,
       height: 900,
       minWidth: 1024,

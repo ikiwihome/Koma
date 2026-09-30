@@ -101,7 +101,7 @@ function QiniuProvider({ api }: QiniuProviderProps) {
   const [saving, setSaving] = useState(false);
   const [status, setStatus] = useState<ConnStatus>('idle');
   const [err, setErr] = useState('');
-  const [hasActivation, setHasActivation] = useState<boolean | null>(null);
+  const [hasApiKey, setHasApiKey] = useState<boolean | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -110,13 +110,9 @@ function QiniuProvider({ api }: QiniuProviderProps) {
         const merged = { ...DEFAULT_CONFIG, ...(cfg || {}) } as QiniuConfig;
         setConfig(merged);
         form.setFieldsValue(merged);
-        try {
-          const key = merged.apiKey || await api.activation.getApiKey();
-          setHasActivation(!!key);
-          if (merged.enabled && key) setStatus('success');
-        } catch {
-          setHasActivation(false);
-        }
+        const key = merged.apiKey?.trim();
+        setHasApiKey(!!key);
+        if (merged.enabled && key) setStatus('success');
       } catch {
         form.setFieldsValue(DEFAULT_CONFIG);
       } finally {
@@ -129,12 +125,12 @@ function QiniuProvider({ api }: QiniuProviderProps) {
   const testConn = useCallback(async (cfg?: QiniuConfig) => {
     const t = cfg || config;
     if (!t.enabled) { api.ui.showMessage('warning', '请先启用图床服务'); return; }
-    const key = t.apiKey || await api.activation.getApiKey();
+    const key = t.apiKey?.trim();
     if (!key) {
-      api.ui.showMessage('error', '未配置 Koma 图床 Key，请到设置 → 插件 → 七牛云图床（内置）填写 KomaAPI Key；Agnes Key 仅用于模型服务');
+      api.ui.showMessage('error', '未配置图床 API Key，请到设置 → 插件 → 图床填写 API Key');
       setStatus('error');
-      setErr('未检测到激活 Key');
-      setHasActivation(false);
+      setErr('未配置图床 API Key');
+      setHasApiKey(false);
       return;
     }
     setStatus('testing');
@@ -222,10 +218,10 @@ function QiniuProvider({ api }: QiniuProviderProps) {
       )
     ),
 
-    hasActivation === false && React.createElement(Alert, {
+    hasApiKey === false && React.createElement(Alert, {
       type: 'warning',
-      message: '未配置 Koma 图床 Key',
-      description: '请在下方填写具有图床权限的 KomaAPI Key，然后保存配置。',
+      message: '未配置图床 API Key',
+      description: '请在下方填写图床 API Key，然后保存配置。',
       style: { marginBottom: 16 },
       showIcon: true,
     }),
@@ -298,40 +294,26 @@ class QiniuImageHostingRuntime {
   type = 'qiniu-image-hosting';
   private readonly fetcher: typeof fetch;
   private readonly config: QiniuConfig;
-  private readonly api: PluginAPI | null;
 
   constructor(
     config: Record<string, unknown>,
-    ctx: { sandboxedFetch?: typeof fetch; api?: PluginAPI }
+    ctx: { sandboxedFetch?: typeof fetch }
   ) {
     this.fetcher = ctx?.sandboxedFetch || fetch;
     this.config = { ...DEFAULT_CONFIG, ...(config as any) } as QiniuConfig;
-    this.api = ctx?.api || ((window as any).__KOMA_PLUGIN_API__ || null);
   }
 
   validate(): boolean {
     return Boolean(this.config.enabled);
   }
 
-  private async resolveApiKey(): Promise<string | null> {
-    if (this.config.apiKey?.trim()) return this.config.apiKey.trim();
-    try {
-      if (this.api?.activation?.getApiKey) {
-        return await this.api.activation.getApiKey();
-      }
-      const globalApi: PluginAPI | undefined = (window as any).__KOMA_PLUGIN_API__;
-      if (globalApi?.activation?.getApiKey) {
-        return await globalApi.activation.getApiKey();
-      }
-    } catch {
-      // fall through
-    }
-    return null;
+  private resolveApiKey(): string | null {
+    return this.config.apiKey?.trim() || null;
   }
 
   async testConnection(): Promise<boolean> {
     if (!this.validate()) return false;
-    const key = await this.resolveApiKey();
+    const key = this.resolveApiKey();
     if (!key) return false;
     try {
       const testBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
@@ -347,8 +329,8 @@ class QiniuImageHostingRuntime {
   ): Promise<{ success: boolean; url?: string; error?: string; data?: any }> {
     if (!this.validate()) return { success: false, error: '图床未启用' };
 
-    const apiKey = await this.resolveApiKey();
-    if (!apiKey) return { success: false, error: '未配置 Koma 图床 Key，请到设置 → 插件 → 七牛云图床（内置）填写 KomaAPI Key；Agnes Key 仅用于模型服务' };
+    const apiKey = this.resolveApiKey();
+    if (!apiKey) return { success: false, error: '未配置图床 API Key，请到设置 → 插件 → 图床填写 API Key' };
 
     try {
       const filename = options?.filename || `image_${Date.now()}.png`;
@@ -388,16 +370,14 @@ class QiniuImageHostingRuntime {
 async function onActivate(api: PluginAPI) {
   console.log('[Qiniu] 前端 UI 已加载');
   try {
-    // 让 runtime 能从全局兜底读到 api.activation
-    (window as any).__KOMA_PLUGIN_API__ = api;
     await api.channels.registerProvider({
       type: 'qiniu-image-hosting',
       kind: 'image-hosting' as any,
       name: '七牛云图床（内置）',
-      description: '使用激活 Key 调用 Koma 官方上传接口（komaapi.com），返回七牛云 Kodo 外链并支持时间戳防盗链',
+      description: '调用 Koma 官方上传接口（komaapi.com），返回七牛云 Kodo 外链并支持时间戳防盗链',
       capabilities: ['image-hosting'] as any[],
       defaultConfig: DEFAULT_CONFIG,
-      factory: (config: any, ctx: any) => new QiniuImageHostingRuntime(config, { ...ctx, api }),
+      factory: (config: any, ctx: any) => new QiniuImageHostingRuntime(config, ctx),
     });
     console.log('[Qiniu] Provider 注册成功');
   } catch (err) {

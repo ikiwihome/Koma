@@ -51,6 +51,61 @@ const getFFmpegAPI = (): any => {
 };
 
 /**
+ * 从主进程返回值里提取失败原因。
+ *
+ * 主进程 IPC handler 会把异常转成 `{ success: false, error }`（见
+ * electron/controller/ffmpeg.ts），但早期的实现 / 未经封装的调用会直接返回
+ * `undefined`。这里只负责识别「明确的失败」，是否容忍 `undefined` 由调用点决定。
+ */
+function describeIpcFailure(result: unknown): string | null {
+  if (result && typeof result === 'object' && (result as { success?: boolean }).success === false) {
+    const error = (result as { error?: string }).error;
+    return error && error.length > 0 ? error : '主进程未提供错误详情';
+  }
+  return null;
+}
+
+/**
+ * 要求一次 IPC 调用明确返回 `{ success: true }`。
+ *
+ * 用于帧落盘 / 视频合成这类「必须成功」的调用：ee-core 的 `ipcMain.handle` 会吞掉
+ * handler 里的异常，渲染端拿到的是 `undefined`。如果这里不把 `undefined` 当作失败，
+ * 就会出现「提示导出完成，但磁盘上根本没有文件」——这正是本次修复的 bug。
+ */
+function requireIpcSuccess(result: unknown, action: string): void {
+  if (result && typeof result === 'object' && (result as { success?: boolean }).success === true) {
+    return;
+  }
+
+  const failure = describeIpcFailure(result);
+  throw new Error(
+    failure ? `${action}失败：${failure}` : `${action}失败：主进程未返回成功结果（详见主进程日志）`
+  );
+}
+
+/**
+ * 解析 getTempDir 的返回值。
+ *
+ * 成功时主进程返回字符串（历史行为），失败时返回 `{ success: false, error }`。
+ */
+function resolveTempDirResult(result: unknown, fallback: string): string {
+  if (typeof result === 'string' && result.length > 0) {
+    return result;
+  }
+
+  const failure = describeIpcFailure(result);
+  if (failure) {
+    throw new Error(`获取导出临时目录失败：${failure}`);
+  }
+
+  if (result && typeof result === 'object' && typeof (result as { dir?: string }).dir === 'string') {
+    return (result as { dir: string }).dir;
+  }
+
+  return fallback;
+}
+
+/**
  * SimpleEditor 导出渲染器
  */
 export class SimpleExportRenderer {
@@ -95,6 +150,25 @@ export class SimpleExportRenderer {
     const ffmpegAPI = getFFmpegAPI();
 
     try {
+      // FFmpeg 服务不存在时根本不可能产出文件，必须立即失败。
+      // 否则旧逻辑会「跳过写帧、跳过编码」之后照样弹「导出完成」。
+      if (!ffmpegAPI) {
+        throw new Error('FFmpeg 不可用：未检测到桌面端 FFmpeg 服务，无法导出视频');
+      }
+      if (!this.config.outputPath) {
+        throw new Error('未指定导出文件路径');
+      }
+
+      // 提前探活二进制：主进程已经用 `ffmpeg -version` 校验过，返回 false 说明
+      // resources/ffmpeg 里的二进制缺失或损坏、系统 PATH 里也没有可用 ffmpeg。
+      // 此时立刻失败，避免白渲染几万帧才在编码阶段报错。
+      const ffmpegReady = await ffmpegAPI.isAvailable?.();
+      if (ffmpegReady === false) {
+        throw new Error(
+          'FFmpeg 不可用：未找到可执行的 ffmpeg 二进制（resources/ffmpeg 下的文件缺失或已损坏）'
+        );
+      }
+
       // 阶段1: 准备
       this.emitProgress({
         stage: 'preparing',
@@ -115,7 +189,7 @@ export class SimpleExportRenderer {
         message: '正在渲染帧...',
       });
 
-      const tempDir = ffmpegAPI ? await ffmpegAPI.getTempDir() : '/tmp/export';
+      const tempDir = resolveTempDirResult(await ffmpegAPI.getTempDir(), '/tmp/export');
       await this.renderAllFrames(tempDir);
 
       // 阶段3: FFmpeg 编码
@@ -130,27 +204,35 @@ export class SimpleExportRenderer {
       // 收集音频信息
       const audioClips = this.collectAudioClips();
 
-      // 调用 FFmpeg 合成
-      if (ffmpegAPI) {
-        const quality = this.config.quality === 'custom'
-          ? { videoBitrate: this.config.videoBitrate || 5000, audioBitrate: this.config.audioBitrate || 192 }
-          : QUALITY_PRESETS[this.config.quality];
+      const quality = this.config.quality === 'custom'
+        ? { videoBitrate: this.config.videoBitrate || 5000, audioBitrate: this.config.audioBitrate || 192 }
+        : QUALITY_PRESETS[this.config.quality];
 
-        await ffmpegAPI.composeVideo({
-          frameDir: tempDir,
-          framePattern: 'frame_%05d.png',
-          fps: this.config.fps,
-          width: this.config.width,
-          height: this.config.height,
-          format: this.config.format,
-          videoBitrate: quality.videoBitrate,
-          audioBitrate: quality.audioBitrate,
-          audioTracks: audioClips,
-          outputPath: this.config.outputPath,
-        });
+      // 调用 FFmpeg 合成。主进程已经校验过输出文件确实落盘（非空），
+      // 因此这里的 `success: true` 就等价于「磁盘上真的多了一个视频文件」。
+      const composeResult = await ffmpegAPI.composeVideo({
+        frameDir: tempDir,
+        framePattern: 'frame_%05d.png',
+        fps: this.config.fps,
+        width: this.config.width,
+        height: this.config.height,
+        format: this.config.format,
+        videoBitrate: quality.videoBitrate,
+        audioBitrate: quality.audioBitrate,
+        audioTracks: audioClips,
+        outputPath: this.config.outputPath,
+      });
+      requireIpcSuccess(composeResult, '合成视频');
 
-        // 清理临时文件
-        await ffmpegAPI.cleanupTemp(tempDir);
+      // 清理临时文件：失败（如文件被占用）不影响已经成功的导出，只记日志。
+      try {
+        const cleanupResult = await ffmpegAPI.cleanupTemp(tempDir);
+        const cleanupFailure = describeIpcFailure(cleanupResult);
+        if (cleanupFailure) {
+          console.warn('[SimpleExportRenderer] 清理导出临时文件失败:', cleanupFailure);
+        }
+      } catch (cleanupErr) {
+        console.warn('[SimpleExportRenderer] 清理导出临时文件异常:', cleanupErr);
       }
 
       // 完成
@@ -236,10 +318,14 @@ export class SimpleExportRenderer {
     const startTime = Date.now();
     const ffmpegAPI = getFFmpegAPI();
 
-    // 确保临时目录存在
-    if (ffmpegAPI) {
-      await ffmpegAPI.ensureDir(tempDir);
+    // 导出必须真实写盘：没有 FFmpeg 服务时宁可失败，也不能生成一堆只存在于
+    // 返回值里的「帧路径」，否则后续编码会以「找不到输入」的莫名错误结束。
+    if (!ffmpegAPI) {
+      throw new Error('FFmpeg 不可用：无法写入导出帧');
     }
+
+    // 确保临时目录存在
+    await ffmpegAPI.ensureDir(tempDir);
 
     for (let frame = 0; frame < totalFrames; frame++) {
       if (this.aborted) throw new Error('Export aborted');
@@ -250,10 +336,8 @@ export class SimpleExportRenderer {
       // 导出帧到文件
       const framePath = `${tempDir}/frame_${String(frame).padStart(5, '0')}.png`;
 
-      if (ffmpegAPI) {
-        const dataUrl = this.canvas.toDataURL('image/png');
-        await ffmpegAPI.saveFrame(framePath, dataUrl);
-      }
+      const dataUrl = this.canvas.toDataURL('image/png');
+      requireIpcSuccess(await ffmpegAPI.saveFrame(framePath, dataUrl), `保存第 ${frame + 1} 帧`);
 
       frameFiles.push(framePath);
 

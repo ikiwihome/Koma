@@ -155,7 +155,7 @@ export async function shotImageWorkflow(params: {
     }
   );
 
-  onProgress?.(10, '调用 TTI 服务...');
+  onProgress?.(10, '调用 文生图 服务...');
 
   const projectPath = await getProjectPath(projectId);
   const imageVersionId = buildShotImageVersionId();

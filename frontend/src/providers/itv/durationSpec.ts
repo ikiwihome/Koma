@@ -123,8 +123,8 @@ const ITV_DURATION_SPECS_BY_PROVIDER: Record<string, VideoDurationSpec> = {
  * Seedance 上游约束（Koma 即梦网关 normalizeDuration 行为）：
  *   - seedance-2.5-r / seedance-2.5-f / seedance-2.5: 4-15s
  *
- * Koma 官方激活默认采用 `-r` / `-f` 短后缀；旧 ID `seedance-2.5`
- * 仍保留命中以避免老激活配置回归到 grok 兜底枚举。
+ * Koma 官方渠道默认采用 `-r` / `-f` 短后缀；旧 ID `seedance-2.5`
+ * 仍保留命中以避免历史配置回归到 grok 兜底枚举。
  */
 const ITV_DURATION_SPECS_BY_MODEL_PREFIX: Array<{ prefix: string; spec: VideoDurationSpec }> = [
   { prefix: 'seedance-2.5-f', spec: { kind: 'range', min: 4, max: 15, step: 1, default: 5 } },

@@ -62,7 +62,7 @@ import AssetImageDrawModal, {
   getAssetImageDrawCandidateSource,
   getImageDrawVariation,
   isImageDrawCandidateForOwner,
-  IMAGE_DRAW_CANDIDATE_COUNT,
+  CHARACTER_IMAGE_DRAW_CANDIDATE_COUNT,
   type AssetImageDrawCandidate,
 } from './AssetImageDrawModal';
 import type { ModelCapability } from '../../providers/channel/types';
@@ -463,7 +463,7 @@ export const CharacterDetailPanel: React.FC<CharacterDetailPanelProps> = ({
   const formatDrawProgressStep = useCallback((index: number, step?: string) => {
     const drawStep = t('asset.drawGenerating', {
       current: index + 1,
-      total: IMAGE_DRAW_CANDIDATE_COUNT,
+      total: CHARACTER_IMAGE_DRAW_CANDIDATE_COUNT,
     });
     return step ? `${drawStep} · ${step}` : drawStep;
   }, [t]);
@@ -514,7 +514,7 @@ export const CharacterDetailPanel: React.FC<CharacterDetailPanelProps> = ({
       const charWithPrompt = { ...editedCharacter, ...currentValues };
 
       const result = await generateImageDrawCandidates({
-        count: IMAGE_DRAW_CANDIDATE_COUNT,
+        count: CHARACTER_IMAGE_DRAW_CANDIDATE_COUNT,
         sessionId,
         projectId,
         ownerType,
@@ -540,7 +540,7 @@ export const CharacterDetailPanel: React.FC<CharacterDetailPanelProps> = ({
             normalizeRemoteUrl: false,
             onProgress: (p, step) => {
               if (!isCurrentSession()) return;
-              setProgress(((startIndex + (p / 100) * requestedBatchCount) / IMAGE_DRAW_CANDIDATE_COUNT) * 100);
+              setProgress(((startIndex + (p / 100) * requestedBatchCount) / CHARACTER_IMAGE_DRAW_CANDIDATE_COUNT) * 100);
               setProgressStep(formatDrawProgressStep(startIndex + requestedBatchCount - 1, step));
             },
           });
@@ -565,7 +565,7 @@ export const CharacterDetailPanel: React.FC<CharacterDetailPanelProps> = ({
           normalizeRemoteUrl: false,
           onProgress: (p, step) => {
             if (!isCurrentSession()) return;
-            setProgress(((index + p / 100) / IMAGE_DRAW_CANDIDATE_COUNT) * 100);
+            setProgress(((index + p / 100) / CHARACTER_IMAGE_DRAW_CANDIDATE_COUNT) * 100);
             setProgressStep(formatDrawProgressStep(index, step));
           },
         }),
@@ -592,7 +592,7 @@ export const CharacterDetailPanel: React.FC<CharacterDetailPanelProps> = ({
         if (result.failed > 0) {
           message.warning(t('asset.imageDrawPartialFailed', {
             failed: result.failed,
-            total: IMAGE_DRAW_CANDIDATE_COUNT,
+            total: CHARACTER_IMAGE_DRAW_CANDIDATE_COUNT,
           }));
         }
       } else {

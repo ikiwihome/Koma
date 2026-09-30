@@ -102,6 +102,45 @@ interface Task {
 // 进度回调
 export type ProgressCallback = (progress: number) => void;
 
+/** 探测二进制是否可执行时匹配 `ffmpeg -version` / `ffprobe -version` 的输出特征。 */
+const VERSION_OUTPUT_PATTERN = /\b(?:ffmpeg|ffprobe) version\b/i;
+
+/** 二进制探测超时（毫秒），防止一个卡死的二进制拖住整个服务初始化。 */
+const PROBE_TIMEOUT_MS = 5000;
+
+/**
+ * FFmpeg 二进制缺失 / 不可执行时的统一错误文案。
+ *
+ * 这条消息会经过 IPC 一路冒泡到导出对话框，所以要写清「为什么失败」和「怎么修」，
+ * 而不是让用户只看到「导出失败，请检查输出路径和磁盘空间」这类无法定位的提示。
+ */
+const FFMPEG_UNAVAILABLE_MESSAGE =
+  'FFmpeg 不可用：未找到可执行的 ffmpeg 二进制（resources/ffmpeg 下的文件缺失或已损坏，系统 PATH 中也没有 ffmpeg）';
+
+/** 只保留 stderr 末尾若干行：完整编码日志可能有几十 KB，塞进错误消息毫无价值。 */
+function tailLines(text: string, count = 8): string {
+  const lines = text.trim().split(/\r?\n/).filter((line) => line.trim().length > 0);
+  return lines.slice(-count).join('\n');
+}
+
+/**
+ * 把 asar 虚拟路径映射到对应的 `app.asar.unpacked` 真实路径。
+ *
+ * Electron 只给 `fs`（含 `fs.promises`）打了 asar 补丁：访问 asar 内标记为 unpacked
+ * 的文件会自动重定向到 `app.asar.unpacked/`。但 `child_process.spawn` / `execFile`
+ * 的**可执行文件路径**不做这个重定向，传 asar 路径只会拿到 ENOENT。
+ *
+ * 实测（Electron 39，win-unpacked 打包产物）：
+ *   fs.accessSync('.../app.asar/resources/ffmpeg/ffmpeg.exe')  → OK
+ *   spawn('.../app.asar/resources/ffmpeg/ffmpeg.exe')          → ENOENT
+ *
+ * 所以凡是「要 spawn 的来源文件」都必须先过这个函数；非 asar 路径原样返回
+ * （开发模式下 `app.getAppPath()` 就是项目根，不受影响）。
+ */
+export function toUnpackedPath(target: string): string {
+  return target.replace(/([\\/])app\.asar(?=$|[\\/])/, '$1app.asar.unpacked');
+}
+
 /**
  * FFmpeg 服务
  */
@@ -130,27 +169,57 @@ export class FFmpegService {
     this.ffprobePath = await this.detectFFmpegPath('ffprobe');
 
     if (!this.ffmpegPath) {
-      console.warn('[FFmpegService] FFmpeg not found, some features will be disabled');
+      console.error(
+        '[FFmpegService] FFmpeg not found: 视频导出/抽帧/波形等功能将不可用。' +
+          '请确认 resources/ffmpeg 下的二进制未损坏，或把 ffmpeg 加入系统 PATH。'
+      );
     }
 
     this.initialized = true;
     console.log('[FFmpegService] Initialized', {
-      ffmpeg: this.ffmpegPath,
-      ffprobe: this.ffprobePath,
+      ffmpeg: this.ffmpegPath || '(未找到)',
+      ffprobe: this.ffprobePath || '(未找到)',
       workDir: this.workDir
     });
   }
 
   /**
+   * 收集可能的 FFmpeg 二进制根目录（每个根目录下按下文布局放置二进制）。
+   *
+   * **为什么不能直接用 `app.getAppPath()` 拼路径**：打包后它是 `.../resources/app.asar`。
+   * Electron 只给 `fs` 打了 asar 补丁（把 asar 内文件重定向到 `app.asar.unpacked`），
+   * **不会**重定向 `child_process.spawn` 的可执行文件路径。于是
+   * `fs.accessSync('.../app.asar/resources/ffmpeg/ffmpeg.exe')` 返回成功、`spawn` 却抛
+   * ENOENT，`probeBinary` 永远探测失败、`ffmpegPath` 留空，用户看到的就是
+   * 「导出失败：FFmpeg 不可用（resources/ffmpeg 下的文件缺失或已损坏）」——而磁盘上二进制
+   * 明明存在且能跑。所以 spawn 前必须换成 unpacked 真实路径（见 toUnpackedPath）。
+   */
+  private getFFmpegBinRoots(): string[] {
+    const roots: string[] = [];
+    const resourcesPath = process.resourcesPath;
+
+    if (resourcesPath) {
+      // 打包（asarUnpack）：electron-builder 把 resources/ffmpeg/** 解到
+      // resources/app.asar.unpacked/resources/ffmpeg/**
+      roots.push(path.join(resourcesPath, 'app.asar.unpacked', 'resources', 'ffmpeg'));
+      // 打包（extraResources 布局，`to: 'ffmpeg'`）
+      roots.push(path.join(resourcesPath, 'ffmpeg'));
+    }
+
+    // 开发模式 / asar:false：app.getAppPath() 就是真实目录；打包时它是 app.asar，
+    // 必须映射到 app.asar.unpacked 才 spawn 得动。
+    roots.push(path.join(toUnpackedPath(app.getAppPath()), 'resources', 'ffmpeg'));
+
+    // 用户自备的二进制目录（优先级最低）
+    roots.push(getFfmpegBinDir());
+
+    return [...new Set(roots)];
+  }
+
+  /**
    * 检测 FFmpeg 可执行文件路径。
    *
-   * **打包打开 asarUnpack**：cmd/builder*.json 里 `asarUnpack: ["resources/ffmpeg/**"]`
-   * 把 ffmpeg / ffprobe 二进制解到 `app.asar.unpacked/resources/ffmpeg/...`，否则二进制在
-   * asar 里不可 spawn。Electron 透明处理 asar.unpacked 重定向，所以下面的
-   * `app.getAppPath() + 'resources/ffmpeg/...'` 路径在打包后会被 Electron 自动
-   * resolve 到 unpacked 目录。
-   *
-   * 平台 / 架构布局（resources/ffmpeg/ 目录下实际文件）：
+   * 平台 / 架构布局（每个二进制根目录内）：
    *   ffmpeg.exe                                    Windows x64
    *   ffmpeg                                        macOS x64（M1/M2 走 Rosetta）
    *   ffprobe/win32/x64/ffprobe.exe                 Windows x64
@@ -165,55 +234,131 @@ export class FFmpegService {
     const ext = isWin ? '.exe' : '';
     const execName = name + ext;
 
-    // 优先级 1：固定文件名（ffmpeg 直接落 resources/ffmpeg/，没有平台子目录）
-    const directPaths: string[] = [
-      path.join(app.getAppPath(), 'resources', 'ffmpeg', execName),
-      path.join(getFfmpegBinDir(), execName),
-    ];
+    const candidates: string[] = [];
 
-    // 优先级 2：ffprobe 按 platform/arch 命中正确子目录
-    const archPaths: string[] = [];
-    if (name === 'ffprobe') {
+    for (const root of this.getFFmpegBinRoots()) {
+      // 优先级 1：固定文件名（ffmpeg 直接落根目录，没有平台子目录）
+      candidates.push(path.join(root, execName));
+
+      // 优先级 2：ffprobe 按 platform/arch 命中正确子目录
+      if (name !== 'ffprobe') continue;
+
       if (platform === 'darwin') {
-        archPaths.push(path.join(app.getAppPath(), 'resources', 'ffmpeg', 'ffprobe', 'darwin', arch, execName));
+        candidates.push(path.join(root, 'ffprobe', 'darwin', arch, execName));
         // arm64 缺失时回退 x64（Rosetta 翻译）
         if (arch === 'arm64') {
-          archPaths.push(path.join(app.getAppPath(), 'resources', 'ffmpeg', 'ffprobe', 'darwin', 'x64', execName));
+          candidates.push(path.join(root, 'ffprobe', 'darwin', 'x64', execName));
         }
       } else if (platform === 'win32') {
         if (arch === 'x64' || arch === 'arm64') {
-          archPaths.push(path.join(app.getAppPath(), 'resources', 'ffmpeg', 'ffprobe', 'win32', 'x64', execName));
+          candidates.push(path.join(root, 'ffprobe', 'win32', 'x64', execName));
         }
         // ia32 / arm64 兜底（Win 仿真层会处理）
-        archPaths.push(path.join(app.getAppPath(), 'resources', 'ffmpeg', 'ffprobe', 'win32', 'ia32', execName));
+        candidates.push(path.join(root, 'ffprobe', 'win32', 'ia32', execName));
       }
     }
 
-    const candidates = [...directPaths, ...archPaths];
-
-    // 检查候选路径（X_OK 在 win32 上等同存在性检查，没有真正的可执行位概念）
+    // 检查候选路径：既要求文件存在，也要求**真的能跑起来**（见 isRunnable）。
+    // 只看存在性会踩到一个坑：被截断 / 架构不匹配的二进制同样「存在」，
+    // 却会在 spawn 时异步失败，最终表现为「导出声称成功但文件不存在」。
     for (const p of candidates) {
-      try {
-        await fs.promises.access(p, isWin ? fs.constants.F_OK : fs.constants.X_OK);
+      if (await this.isRunnable(p, isWin)) {
         return p;
-      } catch {
-        // 继续检查下一个
       }
     }
 
-    // 兜底：系统 PATH
+    // 兜底：系统 PATH（`where` / `which` 可能返回多行，逐个探测，第一个能跑的胜出）
     try {
       const result = await this.execCommand(isWin ? 'where' : 'which', [execName]);
-      const systemPath = result.trim().split('\n')[0];
-      if (systemPath) {
-        await fs.promises.access(systemPath, isWin ? fs.constants.F_OK : fs.constants.X_OK);
-        return systemPath;
+      const systemPaths = result
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
+
+      for (const systemPath of systemPaths) {
+        if (await this.isRunnable(systemPath, isWin)) {
+          console.log('[FFmpegService] 回退到系统 PATH 中的二进制', { name, systemPath });
+          return systemPath;
+        }
       }
     } catch {
       // 系统中也没有
     }
 
+    // 把探测过的候选路径一起打出来：用户报「FFmpeg 不可用」时，日志里能直接看到
+    // 是路径不对还是二进制损坏，不用再猜。
+    console.warn('[FFmpegService] 未找到可用的 ffmpeg 二进制', { name, candidates });
     return '';
+  }
+
+  /**
+   * 校验一个候选路径能否真的作为 ffmpeg/ffprobe 执行。
+   *
+   * 1. 文件必须存在（*nix 下还要求可执行位）；
+   * 2. 实际跑一次 `-version`，只有输出版本号才算通过。
+   *
+   * 第 2 步是关键：Windows 上损坏（被截断）的 PE 文件通过 access 检查毫无问题，
+   * 但 spawn 会以 ERROR_BAD_EXE_FORMAT 异步失败，而 ee-core 的 `ipcMain.handle`
+   * 会吞掉该异常，于是前端看到「导入/导出成功」而磁盘上根本没有文件。
+   */
+  private async isRunnable(candidate: string, isWin: boolean): Promise<boolean> {
+    try {
+      await fs.promises.access(candidate, isWin ? fs.constants.F_OK : fs.constants.X_OK);
+    } catch {
+      return false;
+    }
+
+    if (await this.probeBinary(candidate)) {
+      return true;
+    }
+
+    console.warn('[FFmpegService] 候选二进制存在但无法执行，跳过', { candidate });
+    return false;
+  }
+
+  /**
+   * 实际执行 `<binary> -version` 探测二进制是否可用。
+   *
+   * 超时、spawn error、非 0 退出码、输出不含版本号，都视为不可用。
+   */
+  private probeBinary(execPath: string): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (!execPath) {
+        resolve(false);
+        return;
+      }
+
+      let settled = false;
+      let output = '';
+
+      const finish = (ok: boolean) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        try {
+          proc.kill();
+        } catch {
+          // 进程可能已经退出
+        }
+        resolve(ok);
+      };
+
+      const proc = spawn(execPath, ['-version']);
+      const timer = setTimeout(() => {
+        console.warn('[FFmpegService] 二进制探测超时', { execPath });
+        finish(false);
+      }, PROBE_TIMEOUT_MS);
+
+      proc.stdout?.on('data', (data) => { output += data.toString(); });
+      proc.stderr?.on('data', (data) => { output += data.toString(); });
+      proc.on('error', (err) => {
+        console.warn('[FFmpegService] 二进制探测失败', { execPath, error: err.message });
+        finish(false);
+      });
+      proc.on('close', (code) => {
+        finish(code === 0 && VERSION_OUTPUT_PATTERN.test(output));
+      });
+    });
   }
 
   /**
@@ -241,7 +386,10 @@ export class FFmpegService {
   }
 
   /**
-   * 检查 FFmpeg 是否可用
+   * 检查 FFmpeg 是否可用。
+   *
+   * 这里为真代表检测阶段已经成功执行过该二进制的 `-version`，
+   * 也就是「文件存在且真的能跑」，而不是「文件存在」而已。
    */
   isAvailable(): boolean {
     return !!this.ffmpegPath;
@@ -404,7 +552,7 @@ export class FFmpegService {
   private async doExtractFrames(options: ExtractFramesOptions): Promise<string[]> {
     if (!this.ffmpegPath) {
       console.warn('[FFmpegService] extractFrames: FFmpeg not available', { input: options.input });
-      throw new Error('FFmpeg not available');
+      throw new Error(FFMPEG_UNAVAILABLE_MESSAGE);
     }
 
     const {
@@ -487,7 +635,7 @@ export class FFmpegService {
    */
   private async doSplitGridImage(options: SplitGridImageOptions): Promise<string[]> {
     if (!this.ffmpegPath) {
-      throw new Error('FFmpeg not available');
+      throw new Error(FFMPEG_UNAVAILABLE_MESSAGE);
     }
 
     const {
@@ -589,7 +737,7 @@ export class FFmpegService {
    */
   private async doGenerateWaveform(options: WaveformOptions): Promise<string> {
     if (!this.ffmpegPath) {
-      throw new Error('FFmpeg not available');
+      throw new Error(FFMPEG_UNAVAILABLE_MESSAGE);
     }
 
     const {
@@ -621,7 +769,7 @@ export class FFmpegService {
    */
   private async doSplitAudio(input: string, output: string): Promise<string> {
     if (!this.ffmpegPath) {
-      throw new Error('FFmpeg not available');
+      throw new Error(FFMPEG_UNAVAILABLE_MESSAGE);
     }
 
     // 确保输出目录存在
@@ -644,7 +792,7 @@ export class FFmpegService {
    */
   private async doComposeVideo(options: ComposeVideoOptions, onProgress?: ProgressCallback): Promise<string> {
     if (!this.ffmpegPath) {
-      throw new Error('FFmpeg not available');
+      throw new Error(FFMPEG_UNAVAILABLE_MESSAGE);
     }
 
     const {
@@ -761,6 +909,26 @@ export class FFmpegService {
     // 运行 FFmpeg
     await this.runFFmpegWithProgress(args, onProgress);
 
+    // 校验输出文件确实落盘。
+    //
+    // 这是「导出的文件不存在」这个 bug 的最后一道防线：ee-core 的
+    // `ipcMain.handle` 会吞掉 IPC 处理函数抛出的异常（只打日志、不 rethrow），
+    // 渲染端 `await` 会正常 resolve，于是弹出「导出完成」而磁盘上什么都没有。
+    // 在这里直接 stat 输出文件，能保证「FFmpeg 正常退出」和「文件真的存在」是同一件事。
+    try {
+      const stat = await fs.promises.stat(outputPath);
+      if (stat.size === 0) {
+        throw new Error(`FFmpeg 生成的输出文件为空: ${outputPath}`);
+      }
+      console.log('[FFmpegService] composeVideo 完成', { outputPath, bytes: stat.size });
+    } catch (err) {
+      if (err instanceof Error && err.message.startsWith('FFmpeg 生成的输出文件为空')) {
+        throw err;
+      }
+      console.error('[FFmpegService] composeVideo 未生成输出文件', { outputPath, err });
+      throw new Error(`FFmpeg 已退出但未生成输出文件: ${outputPath}`);
+    }
+
     return outputPath;
   }
 
@@ -807,11 +975,14 @@ export class FFmpegService {
           onProgress?.(100);
           resolve('');
         } else {
-          reject(new Error(`FFmpeg failed: ${stderr}`));
+          reject(new Error(`FFmpeg 合成视频失败（退出码 ${code}）:\n${tailLines(stderr) || '(无 stderr 输出)'}`));
         }
       });
 
-      proc.on('error', reject);
+      proc.on('error', (err) => {
+        // 二进制损坏 / 架构不匹配会走到这里（例如 Windows 的 ERROR_BAD_EXE_FORMAT）
+        reject(new Error(`FFmpeg 无法启动（${this.ffmpegPath}）: ${err.message}`));
+      });
     });
   }
 
@@ -837,11 +1008,13 @@ export class FFmpegService {
         if (code === 0) {
           resolve('');
         } else {
-          reject(new Error(`FFmpeg failed: ${stderr}`));
+          reject(new Error(`FFmpeg 执行失败（退出码 ${code}）:\n${tailLines(stderr) || '(无 stderr 输出)'}`));
         }
       });
 
-      proc.on('error', reject);
+      proc.on('error', (err) => {
+        reject(new Error(`FFmpeg 无法启动（${this.ffmpegPath}）: ${err.message}`));
+      });
     });
   }
 

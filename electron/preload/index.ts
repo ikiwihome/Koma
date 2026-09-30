@@ -2,6 +2,7 @@ import { logger } from 'ee-core/log';
 import { registerLocalProtocol } from '../service/protocol';
 import { registerSecurityHeaders } from '../service/security';
 import { initServices } from '../service';
+import { migrateLegacyAppHomeDir } from '../service/legacyMigration';
 import { chatIpc } from '../service/chat/ipc';
 import { registerSettingsIpc } from '../service/settings/ipc';
 import { registerTasksIpc } from '../service/tasks/ipc';
@@ -17,6 +18,12 @@ import { initPluginMarketplaceService } from '../service/marketplace';
 
 function preload(): void {
   logger.info('[preload] load');
+  // 清理旧版留在用户家目录里的 `~/.AI短剧生成工具`（幂等，失败不阻塞启动）
+  try {
+    migrateLegacyAppHomeDir();
+  } catch (err) {
+    logger.warn('[preload] legacy home dir migration failed:', err);
+  }
   registerLocalProtocol();
   registerSecurityHeaders();
   registerBuiltinLLMProviders();

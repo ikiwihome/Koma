@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MediaType, type Clip, type Track } from '../types/editor';
 import { resolveTrackTimeline } from './transition/transitionResolver';
 import { SimpleExportRenderer } from './simpleExportRenderer';
@@ -269,9 +269,10 @@ describe('SimpleExportRenderer transition support', () => {
       transitions: [],
     };
     const ffmpeg = {
+      isAvailable: vi.fn().mockResolvedValue(true),
       getTempDir: vi.fn().mockResolvedValue('/tmp/export'),
-      composeVideo: vi.fn().mockResolvedValue('/tmp/out.mp4'),
-      cleanupTemp: vi.fn().mockResolvedValue(undefined),
+      composeVideo: vi.fn().mockResolvedValue({ success: true, outputPath: '/tmp/out.mp4' }),
+      cleanupTemp: vi.fn().mockResolvedValue({ success: true }),
     };
     (window as any).electronAPI = { ffmpeg };
 
@@ -386,5 +387,136 @@ describe('SimpleExportRenderer transition support', () => {
 
     expect(alphaSnapshots).toHaveLength(1);
     expect(alphaSnapshots[0]).toBe(1);
+  });
+});
+
+/**
+ * 导出失败必须失败。
+ *
+ * 背景（回归保护）：渲染端通过 ipcRenderer 调 FFmpeg 时，ee-core 的 `ipcMain.handle`
+ * 会吞掉 handler 抛出的异常并返回 `undefined`，于是「FFmpeg 跑不起来 / 输出文件没生成」
+ * 会被上层当成成功，弹出「导出完成」，而磁盘上根本没有任何文件。
+ */
+describe('SimpleExportRenderer export failure handling', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+    const { ctx } = createCanvasContext();
+    mockCanvas2DContext(ctx);
+  });
+
+  afterEach(() => {
+    delete (window as any).electronAPI;
+  });
+
+  function stubMediaLoading(renderer: any) {
+    vi.spyOn(renderer, 'preloadMedia').mockResolvedValue(undefined);
+  }
+
+  function stubFrameRendering(renderer: any) {
+    vi.spyOn(renderer, 'renderAllFrames').mockResolvedValue(['/tmp/export/frame_00000.png']);
+  }
+
+  it('throws when the FFmpeg service is missing instead of pretending to succeed', async () => {
+    delete (window as any).electronAPI;
+    const renderer = createRenderer() as any;
+    stubMediaLoading(renderer);
+
+    await expect(renderer.export([createTrack()], 2)).rejects.toThrow(/FFmpeg 不可用/);
+  });
+
+  it('throws when the ffmpeg binary is not executable', async () => {
+    const ffmpeg = {
+      isAvailable: vi.fn().mockResolvedValue(false),
+      getTempDir: vi.fn().mockResolvedValue('/tmp/export'),
+      composeVideo: vi.fn().mockResolvedValue({ success: true, outputPath: '/tmp/out.mp4' }),
+      cleanupTemp: vi.fn().mockResolvedValue({ success: true }),
+    };
+    (window as any).electronAPI = { ffmpeg };
+
+    const renderer = createRenderer() as any;
+    stubMediaLoading(renderer);
+
+    await expect(renderer.export([createTrack()], 2)).rejects.toThrow(/未找到可执行的 ffmpeg/);
+    expect(ffmpeg.getTempDir).not.toHaveBeenCalled();
+  });
+
+  it('propagates structured composeVideo failures and never reports done', async () => {
+    const ffmpeg = {
+      isAvailable: vi.fn().mockResolvedValue(true),
+      getTempDir: vi.fn().mockResolvedValue('/tmp/export'),
+      composeVideo: vi.fn().mockResolvedValue({
+        success: false,
+        error: 'FFmpeg 已退出但未生成输出文件: /tmp/out.mp4',
+      }),
+      cleanupTemp: vi.fn().mockResolvedValue({ success: true }),
+    };
+    (window as any).electronAPI = { ffmpeg };
+
+    const renderer = createRenderer() as any;
+    stubMediaLoading(renderer);
+    stubFrameRendering(renderer);
+
+    const stages: string[] = [];
+    renderer.onProgress((progress: { stage: string }) => stages.push(progress.stage));
+
+    await expect(renderer.export([createTrack()], 2)).rejects.toThrow(/未生成输出文件/);
+    expect(stages).toContain('error');
+    expect(stages).not.toContain('done');
+    expect(ffmpeg.cleanupTemp).not.toHaveBeenCalled();
+  });
+
+  it('treats an undefined composeVideo result (swallowed by the IPC layer) as a failure', async () => {
+    const ffmpeg = {
+      isAvailable: vi.fn().mockResolvedValue(true),
+      getTempDir: vi.fn().mockResolvedValue('/tmp/export'),
+      composeVideo: vi.fn().mockResolvedValue(undefined),
+      cleanupTemp: vi.fn().mockResolvedValue({ success: true }),
+    };
+    (window as any).electronAPI = { ffmpeg };
+
+    const renderer = createRenderer() as any;
+    stubMediaLoading(renderer);
+    stubFrameRendering(renderer);
+
+    await expect(renderer.export([createTrack()], 2)).rejects.toThrow(/合成视频失败/);
+  });
+
+  it('fails the export when a frame cannot be written to disk', async () => {
+    const ffmpeg = {
+      isAvailable: vi.fn().mockResolvedValue(true),
+      getTempDir: vi.fn().mockResolvedValue('/tmp/export'),
+      ensureDir: vi.fn().mockResolvedValue({ success: true }),
+      saveFrame: vi.fn().mockResolvedValue({ success: false, error: '磁盘空间不足' }),
+      composeVideo: vi.fn().mockResolvedValue({ success: true, outputPath: '/tmp/out.mp4' }),
+      cleanupTemp: vi.fn().mockResolvedValue({ success: true }),
+    };
+    (window as any).electronAPI = { ffmpeg };
+    vi.spyOn(HTMLCanvasElement.prototype, 'toDataURL').mockReturnValue('data:image/png;base64,AAAA');
+
+    const renderer = createRenderer() as any;
+    stubMediaLoading(renderer);
+
+    await expect(renderer.export([createTrack()], 0.1)).rejects.toThrow(/保存第 1 帧失败/);
+    expect(ffmpeg.composeVideo).not.toHaveBeenCalled();
+  });
+
+  it('keeps the export successful when temp cleanup fails', async () => {
+    const ffmpeg = {
+      isAvailable: vi.fn().mockResolvedValue(true),
+      getTempDir: vi.fn().mockResolvedValue('/tmp/export'),
+      composeVideo: vi.fn().mockResolvedValue({ success: true, outputPath: '/tmp/out.mp4' }),
+      cleanupTemp: vi.fn().mockResolvedValue({ success: false, error: '文件被占用' }),
+    };
+    (window as any).electronAPI = { ffmpeg };
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const renderer = createRenderer() as any;
+    stubMediaLoading(renderer);
+    stubFrameRendering(renderer);
+
+    await expect(renderer.export([createTrack()], 2)).resolves.toBe('/tmp/out.mp4');
+    expect(warn).toHaveBeenCalled();
+
+    warn.mockRestore();
   });
 });

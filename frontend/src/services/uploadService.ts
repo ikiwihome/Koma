@@ -7,6 +7,7 @@ import type { AssetItem, AssetSource } from '../types/editor';
 import { ffmpegManager } from './ffmpegManager';
 import { DEFAULT_VIDEO_RESOLUTION } from '../constants/dimensions';
 import { createLogger } from '../store/logger';
+import { toKomaLocalUrl } from '../utils/urlUtils';
 
 const logger = createLogger('UploadService');
 
@@ -71,8 +72,8 @@ export async function uploadFile(
         type,
       });
 
-      if (!result.success) {
-        return { success: false, error: result.error };
+      if (!result?.success || !result.path) {
+        return { success: false, error: result?.error || '导入文件未保存成功' };
       }
 
       // 获取媒体信息
@@ -131,6 +132,9 @@ export async function uploadFile(
       return { success: true, asset };
     }
 
+    if (isElectron()) {
+      return { success: false, error: '桌面端素材导入服务不可用，请重新启动最新版软件' };
+    }
     // 浏览器环境（开发模式）- 使用 Blob URL
     const blobUrl = URL.createObjectURL(file);
     let duration = type === 'image' ? 3 : 0;
@@ -224,7 +228,7 @@ function getImageDimensionsFromUrl(src: string): Promise<{ width: number; height
 // 获取图片尺寸（Electron 环境，使用 koma-local 协议）
 function getImageDimensions(path: string): Promise<{ width: number; height: number }> {
   // 转换为可加载的 URL
-  const url = path.startsWith('koma-local://') ? path : `koma-local://${path.replace(/\\/g, '/')}`;
+  const url = toKomaLocalUrl(path);
   return getImageDimensionsFromUrl(url);
 }
 

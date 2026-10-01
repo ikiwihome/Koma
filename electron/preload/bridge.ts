@@ -38,6 +38,7 @@ const ALLOWED_INVOKE_CHANNELS = new Set([
   'controller/dialog/saveFile',
   'controller/fs/readFile', 'controller/fs/readFileAsBase64',
   'controller/fs/writeFile', 'controller/fs/downloadFile',
+  'controller/project/saveUploadedFile',
   'controller/fs/exists', 'controller/fs/mkdir', 'controller/fs/readdir',
   'controller/fs/stat', 'controller/fs/remove', 'controller/fs/copy',
   'controller/diagnostics/appendRendererLog', 'controller/diagnostics/listLogs',
@@ -241,6 +242,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
         return '';
       }
     },
+  },
+  assets: {
+    saveUploadedFile: (options: any) => invokeMain('controller/project/saveUploadedFile', options),
   },
   project: {
     setStorageRoot: (rootPath: string) => invokeMain('controller/project/setStorageRoot', { rootPath }),

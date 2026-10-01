@@ -2,6 +2,9 @@
  * 项目控制器 - 含实体 CRUD
  */
 import { BaseController } from './base';
+import fs from 'node:fs';
+import path from 'node:path';
+import { randomUUID } from 'node:crypto';
 import { services } from '../service';
 import { ensureServicesReady } from '../service';
 import type { ProjectMeta, ExportOptions, ProjectsIndex } from '../service/project';
@@ -11,6 +14,28 @@ import type {
 } from '../service/storage';
 
 class ProjectController extends BaseController {
+
+  async saveUploadedFile(args: { filename: string; data: Uint8Array; projectId: string; type: 'video' | 'image' | 'audio' }) {
+    try {
+      await ensureServicesReady();
+      if (!/^[\w-]+$/.test(args.projectId)) throw new Error('无效的项目 ID');
+      const folder = { video: 'videos', image: 'images', audio: 'audio' }[args.type];
+      if (!folder) throw new Error('不支持的媒体类型');
+      const projectDir = path.join(services.project.getStorageRoot(), 'projects', args.projectId);
+      const assetDir = path.join(projectDir, 'assets', folder);
+      const cacheDir = path.join(projectDir, 'cache', 'imports', randomUUID());
+      await fs.promises.mkdir(assetDir, { recursive: true });
+      await fs.promises.mkdir(cacheDir, { recursive: true });
+      const extension = path.extname(path.basename(args.filename)).replace(/[^.a-zA-Z0-9]/g, '');
+      const filePath = path.join(assetDir, `${randomUUID()}${extension}`);
+      const bytes = Buffer.from(args.data);
+      if (!bytes.length) throw new Error('导入文件为空');
+      await fs.promises.writeFile(filePath, bytes);
+      return { success: true, path: filePath, cacheDir };
+    } catch (err) {
+      return { success: false, error: (err as Error).message };
+    }
+  }
 
   async setStorageRoot(args: { rootPath: string }): Promise<{ success: boolean; rootPath: string }> {
     await ensureServicesReady();

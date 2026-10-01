@@ -43,7 +43,7 @@ export function registerSecurityHeaders(): void {
     ? "script-src 'self' 'unsafe-inline' 'unsafe-eval' koma-local:"
     : "script-src 'self' 'unsafe-inline' koma-local:";
 
-  const connectSrc = `connect-src 'self' ${ALLOWED_CONNECT_DOMAINS.join(' ')}`;
+  const connectSrc = `connect-src 'self' blob: data: ${ALLOWED_CONNECT_DOMAINS.join(' ')}`;
 
   session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
     const csp = [

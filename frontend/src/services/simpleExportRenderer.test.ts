@@ -406,6 +406,7 @@ describe('SimpleExportRenderer export failure handling', () => {
 
   afterEach(() => {
     delete (window as any).electronAPI;
+    vi.unstubAllGlobals();
   });
 
   function stubMediaLoading(renderer: any) {
@@ -415,6 +416,49 @@ describe('SimpleExportRenderer export failure handling', () => {
   function stubFrameRendering(renderer: any) {
     vi.spyOn(renderer, 'renderAllFrames').mockResolvedValue(['/tmp/export/frame_00000.png']);
   }
+
+  it.each(['blob:file:///generated-audio', 'data:audio/wav;base64,AQID'])('exports %s through a local binary file and reuses repeated sources', async (src) => {
+    const ffmpeg = {
+      getTempDir: vi.fn().mockResolvedValue('/tmp/export'),
+      ensureDir: vi.fn().mockResolvedValue({ success: true }),
+      composeVideo: vi.fn().mockResolvedValue({ success: true }),
+      cleanupTemp: vi.fn().mockResolvedValue({ success: true }),
+    };
+    const writeFile = vi.fn().mockResolvedValue({ success: true });
+    (window as any).electronAPI = { ffmpeg, fs: { writeFile } };
+    const fetchMedia = vi.fn().mockResolvedValue({ ok: true, blob: async () => new Blob([new Uint8Array([1, 2, 3])], { type: 'audio/wav' }) });
+    vi.stubGlobal('fetch', fetchMedia);
+    const renderer = createRenderer() as any;
+    stubMediaLoading(renderer);
+    stubFrameRendering(renderer);
+    const clips = [0, 1].map(i => ({ ...createClip(`audio-${i}`, i, 1), type: MediaType.AUDIO, src }));
+    await renderer.export([{ ...createTrack(), clips, transitions: [] }], 2);
+    expect(fetchMedia).toHaveBeenCalledTimes(1);
+    expect(writeFile).toHaveBeenCalledWith('/tmp/export/audio_0.media', 'AQID', true);
+    expect(ffmpeg.composeVideo.mock.calls[0][0].audioTracks.map((a: any) => a.src)).toEqual([
+      '/tmp/export/audio_0.media', '/tmp/export/audio_0.media',
+    ]);
+    expect(renderer.renderAllFrames.mock.invocationCallOrder[0]).toBeGreaterThan(writeFile.mock.invocationCallOrder[0]);
+    expect(clips[0].src).toBe(src);
+  });
+
+  it.each(['expired', 'write-failure'])('stops before rendering or encoding on %s temporary audio', async (failure) => {
+    const ffmpeg = {
+      getTempDir: vi.fn().mockResolvedValue('/tmp/export'),
+      ensureDir: vi.fn().mockResolvedValue({ success: true }),
+      composeVideo: vi.fn(),
+    };
+    (window as any).electronAPI = { ffmpeg, fs: { writeFile: vi.fn().mockResolvedValue(undefined) } };
+    vi.stubGlobal('fetch', failure === 'expired' ? vi.fn().mockRejectedValue(new Error('Failed to fetch'))
+      : vi.fn().mockResolvedValue({ ok: true, blob: async () => new Blob(['audio']) }));
+    const renderer = createRenderer() as any;
+    stubMediaLoading(renderer);
+    stubFrameRendering(renderer);
+    const clip = { ...createClip('audio', 0, 1), type: MediaType.AUDIO, src: 'blob:file:///expired' };
+    await expect(renderer.export([{ ...createTrack(), clips: [clip], transitions: [] }], 1)).rejects.toThrow(/准备导出音频失败/);
+    expect(renderer.renderAllFrames).not.toHaveBeenCalled();
+    expect(ffmpeg.composeVideo).not.toHaveBeenCalled();
+  });
 
   it('throws when the FFmpeg service is missing instead of pretending to succeed', async () => {
     delete (window as any).electronAPI;

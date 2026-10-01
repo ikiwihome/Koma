@@ -180,6 +180,11 @@ export class SimpleExportRenderer {
 
       await this.preloadMedia();
 
+      const tempDir = resolveTempDirResult(await ffmpegAPI.getTempDir(), '/tmp/export');
+      // blob: belongs to this renderer and cannot be opened by the FFmpeg process.
+      // Resolve it before rendering frames so expired media/write failures fail early.
+      const audioClips = await this.prepareAudioClips(tempDir, ffmpegAPI);
+
       // 阶段2: 渲染帧到临时目录
       this.emitProgress({
         stage: 'rendering',
@@ -189,7 +194,6 @@ export class SimpleExportRenderer {
         message: '正在渲染帧...',
       });
 
-      const tempDir = resolveTempDirResult(await ffmpegAPI.getTempDir(), '/tmp/export');
       await this.renderAllFrames(tempDir);
 
       // 阶段3: FFmpeg 编码
@@ -200,9 +204,6 @@ export class SimpleExportRenderer {
         totalFrames,
         message: '正在编码视频...',
       });
-
-      // 收集音频信息
-      const audioClips = this.collectAudioClips();
 
       const quality = this.config.quality === 'custom'
         ? { videoBitrate: this.config.videoBitrate || 5000, audioBitrate: this.config.audioBitrate || 192 }
@@ -548,6 +549,44 @@ export class SimpleExportRenderer {
     ctx.shadowOffsetY = 0;
   }
 
+  private async prepareAudioClips(tempDir: string, ffmpegAPI: any) {
+    const audioClips = this.collectAudioClips();
+    const localSources = new Map<string, string>();
+    for (const audio of audioClips) {
+      if (!/^(blob:|data:)/i.test(audio.src)) continue;
+      if (this.aborted) throw new Error('Export aborted');
+      const cached = localSources.get(audio.src);
+      if (cached) {
+        audio.src = cached;
+        continue;
+      }
+      try {
+        const writeFile = window.electronAPI?.fs?.writeFile;
+        if (!writeFile) throw new Error('未检测到桌面端文件写入服务');
+        const response = await fetch(audio.src);
+        if (!response.ok) throw new Error(`无法读取媒体（${response.status}）`);
+        const blob = await response.blob();
+        if (!blob.size) throw new Error('媒体内容为空');
+        const base64 = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(String(reader.result).split(',')[1]);
+          reader.onerror = () => reject(reader.error || new Error('读取媒体内容失败'));
+          reader.readAsDataURL(blob);
+        });
+        if (this.aborted) throw new Error('Export aborted');
+        requireIpcSuccess(await ffmpegAPI.ensureDir(tempDir), '创建导出临时目录');
+        // FFmpeg probes the actual format; no filename/MIME assumptions needed.
+        const localPath = `${tempDir}/audio_${localSources.size}.media`;
+        requireIpcSuccess(await writeFile(localPath, base64, true), '保存导出音频');
+        localSources.set(audio.src, localPath);
+        audio.src = localPath;
+      } catch (err) {
+        throw new Error(`准备导出音频失败：${(err as Error).message}。若临时媒体已失效，请重新导入或生成该素材后重试。`);
+      }
+    }
+    return audioClips;
+  }
+
   private collectAudioClips(): Array<{
     src: string;
     start: number;
@@ -556,6 +595,7 @@ export class SimpleExportRenderer {
     volume: number;
     fadeInDuration?: number;
     fadeOutDuration?: number;
+    optional?: boolean;
   }> {
     const audioClips: Array<{
       src: string;
@@ -565,6 +605,7 @@ export class SimpleExportRenderer {
       volume: number;
       fadeInDuration?: number;
       fadeOutDuration?: number;
+      optional?: boolean;
     }> = [];
 
     for (const track of this.tracks) {
@@ -586,6 +627,7 @@ export class SimpleExportRenderer {
             volume: clip.opacity ?? 1,
             fadeInDuration: fadeInPlan?.duration,
             fadeOutDuration: fadeOutPlan?.duration,
+            optional: clip.type === 'VIDEO',
           });
         }
       }

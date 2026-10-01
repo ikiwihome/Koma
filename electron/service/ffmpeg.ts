@@ -82,6 +82,7 @@ export interface ComposeVideoOptions {
     volume: number;           // 音量 0-1
     fadeInDuration?: number;  // 淡入时长（秒）
     fadeOutDuration?: number; // 淡出时长（秒）
+    optional?: boolean;      // 视频可能没有音轨
   }>;
   outputPath: string;
 }
@@ -805,9 +806,21 @@ export class FFmpegService {
       videoCodec = 'h264',
       videoBitrate,
       audioBitrate,
-      audioTracks,
+      audioTracks: requestedAudioTracks,
       outputPath
     } = options;
+
+    const audioTracks: ComposeVideoOptions['audioTracks'] = [];
+    const audioPresence = new Map<string, boolean>();
+    for (const audio of requestedAudioTracks) {
+      if (audio.optional && !/^(blob:|data:)/i.test(audio.src)) {
+        if (!audioPresence.has(audio.src)) {
+          audioPresence.set(audio.src, (await this.doGetMediaInfo(audio.src)).hasAudio);
+        }
+        if (!audioPresence.get(audio.src)) continue;
+      }
+      audioTracks.push(audio);
+    }
 
     // 确保输出目录存在
     await fs.promises.mkdir(path.dirname(outputPath), { recursive: true });
@@ -824,6 +837,9 @@ export class FFmpegService {
 
     // 添加音频输入
     for (const audio of audioTracks) {
+      if (/^(blob:|data:)/i.test(audio.src)) {
+        throw new Error('导出音频尚未保存为本地文件，FFmpeg 无法读取浏览器临时媒体地址');
+      }
       args.push('-i', audio.src);
       inputIndex++;
     }
@@ -840,7 +856,7 @@ export class FFmpegService {
       for (let i = 0; i < audioTracks.length; i++) {
         const audio = audioTracks[i];
         const audioIdx = i + 1;
-        const audioFiltersForTrack = [`atrim=start=${Math.max(0, audio.offset)}:duration=${audio.duration}`];
+        const audioFiltersForTrack = [`atrim=start=${Math.max(0, audio.offset)}:duration=${audio.duration}`, 'asetpts=PTS-STARTPTS'];
         if (audio.fadeInDuration && audio.fadeInDuration > 0) {
           audioFiltersForTrack.push(`afade=t=in:st=0:d=${audio.fadeInDuration}`);
         }
@@ -871,7 +887,7 @@ export class FFmpegService {
     // 视频编码设置
     // 关键：恒定帧率 + 显式输出 fps + GOP 控制，否则导出后播放会卡顿
     // - `-r {fps}` 显式输出帧率，避免与输入 -framerate 不一致导致时间戳错乱
-    // - `-vsync cfr` 强制恒定帧率，避免 FFmpeg 自动插帧/丢帧引入 stutter
+    // - `-fps_mode cfr` 强制恒定帧率，避免 FFmpeg 自动插帧/丢帧引入 stutter
     // - `-g {fps*2}` 限制关键帧间隔最大 2 秒，避免长 GOP 在 seek/解码时卡
     // - `-movflags +faststart` mp4 metadata 前置，加快 video element 起播
     if (format === 'mp4') {
@@ -881,7 +897,7 @@ export class FFmpegService {
       args.push('-b:v', `${videoBitrate}k`);
       args.push('-pix_fmt', 'yuv420p');
       args.push('-r', String(fps));
-      args.push('-vsync', 'cfr');
+      args.push('-fps_mode', 'cfr');
       args.push('-g', String(Math.max(2, Math.round(fps * 2))));
       args.push('-movflags', '+faststart');
       if (audioTracks.length > 0) {
@@ -892,7 +908,7 @@ export class FFmpegService {
       args.push('-c:v', 'libvpx-vp9');
       args.push('-b:v', `${videoBitrate}k`);
       args.push('-r', String(fps));
-      args.push('-vsync', 'cfr');
+      args.push('-fps_mode', 'cfr');
       args.push('-g', String(Math.max(2, Math.round(fps * 2))));
       if (audioTracks.length > 0) {
         args.push('-c:a', 'libopus');
